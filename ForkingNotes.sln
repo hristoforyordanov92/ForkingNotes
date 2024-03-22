@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34622.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NotesApp", "NotesApp\NotesApp.csproj", "{A13580A9-4FC7-4114-BB9F-D9DD092F2D9C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WPFBasics", "WPFBasics\WPFBasics.csproj", "{00E2BA66-C491-43C1-B458-B2158119C4B3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{50A1547F-126A-4112-860B-27030531117D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A13580A9-4FC7-4114-BB9F-D9DD092F2D9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A13580A9-4FC7-4114-BB9F-D9DD092F2D9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A13580A9-4FC7-4114-BB9F-D9DD092F2D9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A13580A9-4FC7-4114-BB9F-D9DD092F2D9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00E2BA66-C491-43C1-B458-B2158119C4B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00E2BA66-C491-43C1-B458-B2158119C4B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00E2BA66-C491-43C1-B458-B2158119C4B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00E2BA66-C491-43C1-B458-B2158119C4B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50A1547F-126A-4112-860B-27030531117D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50A1547F-126A-4112-860B-27030531117D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50A1547F-126A-4112-860B-27030531117D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50A1547F-126A-4112-860B-27030531117D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3E042AE6-CFEE-4FC2-ACC9-9547F7DA3167}
+	EndGlobalSection
+EndGlobal
