@@ -20,8 +20,7 @@
 
         <TextBox Grid.Row="0"
                  Margin="0 0 0 26"
-                 materialDesign:HintAssist.Hint="Name"
-                 Style="{StaticResource MaterialDesignOutlinedTextBox}">
+                 materialDesign:HintAssist.Hint="Name">
             <TextBox.Text>
                 <Binding Path="Name" UpdateSourceTrigger="PropertyChanged">
                     <Binding.ValidationRules>

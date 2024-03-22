@@ -25,17 +25,50 @@ namespace NotesApp.ViewModels
         public MainWindowViewModel(Window window)
         {
             _window = window;
-            //SettingsManager.LoadSettingsFile();
+
+            SearchTags.CollectionChanged += (sender, e) => FilterNotes();
 
             SearchNotesCommand = new RelayCommand(SearchNotes);
             CreateNoteCommand = new RelayCommand(CreateNote);
             OpenSettingsWindowCommand = new RelayCommand(OpenSettingsWindow);
+            AddSearchTagCommand = new RelayCommand(AddSearchTag);
+            RemoveSearchTagCommand = new RelayCommand<object>(RemoveSearchTag);
 
             AllNotes = new ObservableCollection<Note>(NoteManager.AllNotes);
             FilteredNotes = AllNotes;
 
             _searchQueryDelayTimer.AutoReset = false;
             _searchQueryDelayTimer.Elapsed += OnTimerElapsed;
+        }
+
+        public ObservableCollection<string> SearchTags { get; set; } = [];
+
+        // todo: need to sanitize the tags
+        private string _tag = string.Empty;
+        public string Tag
+        {
+            get => _tag;
+            set => SetField(ref _tag, value);
+        }
+
+        public RelayCommand AddSearchTagCommand { get; set; }
+        public RelayCommand<object> RemoveSearchTagCommand { get; set; }
+
+        private void AddSearchTag()
+        {
+            if (string.IsNullOrWhiteSpace(Tag))
+                return;
+
+            SearchTags.Add(Tag);
+            Tag = string.Empty;
+        }
+
+        private void RemoveSearchTag(object? parameter)
+        {
+            if (parameter is not string tag)
+                return;
+
+            SearchTags.Remove(tag);
         }
 
         private string _searchQuery = string.Empty;
@@ -72,6 +105,27 @@ namespace NotesApp.ViewModels
             Tags,
             Content,
             File
+        }
+
+        private void FilterNotes()
+        {
+            if (SearchTags.Count == 0)
+            {
+                FilteredNotes = AllNotes;
+                return;
+            }
+
+            FilteredNotes = AllNotes
+                .Where(note =>
+                {
+                    foreach (var tag in SearchTags)
+                    {
+                        if (note.Tags.Contains(tag))
+                            return true;
+                    }
+
+                    return false;
+                });
         }
 
         private void SearchNotes()

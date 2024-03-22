@@ -15,11 +15,7 @@ namespace NotesApp.ViewModels
     public class SettingsViewModel : ViewModelBase
     {
         private readonly Window _window;
-        private readonly PaletteHelper _paletteHelper = new();
-
         private readonly Settings _currentSettings;
-
-        //private BaseTheme _selectedTheme;
 
         public SettingsViewModel(Window window)
         {

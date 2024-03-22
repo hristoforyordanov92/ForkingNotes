@@ -1,13 +1,12 @@
 ﻿using MaterialDesignThemes.Wpf;
 using Newtonsoft.Json;
+using NotesApp.Managers;
 
 namespace NotesApp.Configuration
 {
     [JsonObject(memberSerialization: MemberSerialization.OptIn)]
     public class Settings
     {
-        private readonly PaletteHelper _paletteHelper = new();
-
         [JsonProperty("ApplicationTheme")]
         private BaseTheme _theme;
 
@@ -19,21 +18,14 @@ namespace NotesApp.Configuration
             set
             {
                 _theme = value;
-                ApplyBaseTheme(_theme);
+                ThemeManager.ApplyBaseTheme(_theme);
                 SettingsChanged?.Invoke();
             }
         }
 
         public void ApplySettings()
         {
-            ApplyBaseTheme(Theme);
-        }
-
-        private void ApplyBaseTheme(BaseTheme baseTheme)
-        {
-            Theme currentTheme = _paletteHelper.GetTheme();
-            currentTheme.SetBaseTheme(baseTheme);
-            _paletteHelper.SetTheme(currentTheme);
+            ThemeManager.ApplyBaseTheme(Theme);
         }
     }
 }

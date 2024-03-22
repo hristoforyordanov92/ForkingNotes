@@ -11,12 +11,13 @@
         WindowStartupLocation="CenterOwner"
         Style="{StaticResource MaterialDesignWindow}"
         Title="SettingsView" Height="450" Width="400">
-    <Grid Margin="10">
+    <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
 
-        <ComboBox materialDesign:HintAssist.Hint="Color theme"
+        <ComboBox Padding="5 11 5 5"
+                  materialDesign:HintAssist.Hint="Color theme"
                   ItemsSource="{Binding ThemesCollection}"
                   SelectedItem="{Binding SelectedTheme}"
                   Style="{StaticResource MaterialDesignOutlinedComboBox}" />

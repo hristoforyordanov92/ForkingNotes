@@ -5,11 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewmodels="clr-namespace:NotesApp.ViewModels"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:validation="clr-namespace:NotesApp.Validations"
         d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
         Style="{StaticResource MaterialDesignWindow}"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        Title="Forking Notes" Height="400" Width="400">
+        Title="Forking Notes" Height="400" Width="700">
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
@@ -18,13 +19,13 @@
         </Grid.RowDefinitions>
 
         <!--Creating new notes-->
-        <Grid Grid.Row="0" Margin="0 0 0 10">
+        <Grid Grid.Row="0" Margin="0 0 0 20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
-            
+
             <Button Grid.Column="0" ToolTip="Create Note" Command="{Binding CreateNoteCommand}">
                 <materialDesign:PackIcon Kind="FileDocumentPlusOutline" />
             </Button>
@@ -34,17 +35,49 @@
         </Grid>
 
         <!--Searching for a note-->
-        <Grid Grid.Row="1" Margin="0 0 0 10">
+        <Grid Grid.Row="1" Margin="0 0 0 20">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
 
-            <TextBox Grid.Column="0" Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}">
+            <TextBox Grid.Column="0"
+                     Margin="0 0 10 0"
+                     VerticalAlignment="Top"
+                     materialDesign:HintAssist.Hint="Tag">
+                <TextBox.Text>
+                    <Binding Path="Tag" UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                            <validation:TagValidation />
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
                 <TextBox.InputBindings>
-                    <KeyBinding Key="Return" Command="{Binding SearchNotesCommand}" />
+                    <KeyBinding Key="Return" Command="{Binding AddSearchTagCommand}" />
                 </TextBox.InputBindings>
             </TextBox>
+
+            <ItemsControl Grid.Column="1" ItemsSource="{Binding SearchTags}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <materialDesign:Chip Content="{Binding}"
+                                             IsDeletable="True"
+                                             DeleteCommand="{Binding DataContext.RemoveSearchTagCommand, RelativeSource={RelativeSource AncestorType=ItemsControl, Mode=FindAncestor}}"
+                                             DeleteCommandParameter="{Binding}">
+                            <materialDesign:Chip.InputBindings>
+                                <MouseBinding MouseAction="MiddleClick"
+                                              Command="{Binding DataContext.RemoveSearchTagCommand, RelativeSource={RelativeSource AncestorType=ItemsControl, Mode=FindAncestor}}"
+                                              CommandParameter="{Binding}" />
+                            </materialDesign:Chip.InputBindings>
+                        </materialDesign:Chip>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </Grid>
 
         <!--All/filtered notes-->
