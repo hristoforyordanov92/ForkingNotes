@@ -7,6 +7,7 @@ using WPFBasics;
 using Core;
 using Timer = System.Timers.Timer;
 using NotesApp.Views;
+using System.Collections.ObjectModel;
 
 namespace NotesApp.ViewModels
 {
@@ -23,7 +24,7 @@ namespace NotesApp.ViewModels
             SearchNotesCommand = new RelayCommand(SearchNotes);
             CreateNoteCommand = new RelayCommand(CreateNote);
 
-            AllNotes = NoteManager.AllNotes;
+            AllNotes = new ObservableCollection<Note>(NoteManager.AllNotes);
             FilteredNotes = AllNotes;
 
             _searchQueryDelayTimer.AutoReset = false;
@@ -41,7 +42,7 @@ namespace NotesApp.ViewModels
             }
         }
 
-        private List<Note> AllNotes { get; set; }
+        private ObservableCollection<Note> AllNotes { get; set; }
 
         private IEnumerable<Note> _filteredNotes = [];
         public IEnumerable<Note> FilteredNotes
@@ -138,7 +139,8 @@ namespace NotesApp.ViewModels
 
             NoteManager.SaveNote(note);
 
-            AllNotes = NoteManager.AllNotes;
+            AllNotes.Add(note);
+
             SearchNotes();
         }
     }
