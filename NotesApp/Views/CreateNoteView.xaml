@@ -3,38 +3,34 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:viewmodels="clr-namespace:NotesApp.ViewModels"
+        xmlns:validations="clr-namespace:NotesApp.Validations"
         Style="{StaticResource MaterialDesignWindow}"
         d:DataContext="{d:DesignInstance Type=viewmodels:CreateNoteViewModel}"
         mc:Ignorable="d"
-        Title="New Note" Height="450" Width="400">
-    <Grid Margin="4 12 4 4">
+        SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        Title="New Note" Width="400">
+    <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="auto" />
-            </Grid.RowDefinitions>
+        <TextBox Grid.Row="0"
+                 Margin="0 0 0 26"
+                 materialDesign:HintAssist.Hint="Name"
+                 Style="{StaticResource MaterialDesignOutlinedTextBox}">
+            <TextBox.Text>
+                <Binding Path="Name" UpdateSourceTrigger="PropertyChanged">
+                    <Binding.ValidationRules>
+                        <validations:FileNameValidation ValidatesOnTargetUpdated="True" />
+                    </Binding.ValidationRules>
+                </Binding>
+            </TextBox.Text>
+        </TextBox>
 
-            <TextBlock Grid.Column="0" Grid.Row="0" Text="Name" />
-            <TextBox Grid.Column="1" Grid.Row="0" Margin="4 0 0 4" Text="{Binding Name}" />
-
-            <TextBlock Grid.Column="0" Grid.Row="1" Text="Tags" />
-            <TextBox Grid.Column="1" Grid.Row="1" Margin="4 0 0 4" Text="{Binding Tags}" />
-        </Grid>
-
-        <TextBlock Grid.Row="1" Text="Content" />
-        <TextBox Grid.Row="2" Margin="0 0 0 4" Text="{Binding Content}" />
-        <Button Grid.Row="3" Content="Create Note" Command="{Binding CreateNoteCommand}" />
+        <Button Grid.Row="1" Content="Create Note" Command="{Binding CreateNoteCommand}" />
     </Grid>
 </Window>

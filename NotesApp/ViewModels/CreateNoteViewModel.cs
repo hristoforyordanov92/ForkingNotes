@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 using NotesApp.Models;
-using WPFBasics;
+using Core.MVVM;
 
 namespace NotesApp.ViewModels
 {
@@ -21,17 +21,10 @@ namespace NotesApp.ViewModels
 
         private void CreateNote()
         {
-            // todo: need to implement the logic and some validation
-            if (string.IsNullOrWhiteSpace(Name)
-                || string.IsNullOrWhiteSpace(Content)
-                || string.IsNullOrWhiteSpace(Tags))
+            if (string.IsNullOrWhiteSpace(Name))
                 return;
 
-            var note = new Note(Name)
-            {
-                Content = Content,
-                Tags = [.. Tags.Split(' ')]
-            };
+            var note = new Note(Name);
 
             NoteCreated?.Invoke(note);
         }

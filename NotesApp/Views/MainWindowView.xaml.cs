@@ -11,7 +11,7 @@ namespace NotesApp.Views
         public MainWindowView()
         {
             InitializeComponent();
-            DataContext = new MainWindowViewModel();
+            DataContext = new MainWindowViewModel(this);
         }
     }
 }

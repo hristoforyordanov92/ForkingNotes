@@ -19,6 +19,7 @@ namespace NotesApp.Views
             DataContext = vm;
         }
 
+        // todo: maybe rework to please the "design patterns" gods
         private void OnNoteCreated(Note obj)
         {
             Note = obj;

@@ -13,6 +13,8 @@ namespace NotesApp.Utils
     /// </summary>
     public static class PathHelper
     {
+        private static readonly HashSet<char> _invalidCharacters = [];
+
         /// <summary>
         /// The file extension of notes.
         /// </summary>
@@ -20,6 +22,12 @@ namespace NotesApp.Utils
 
         static PathHelper()
         {
+            foreach (var @char in Path.GetInvalidPathChars())
+                _invalidCharacters.Add(@char);
+
+            foreach (var @char in Path.GetInvalidFileNameChars())
+                _invalidCharacters.Add(@char);
+
             Directory.CreateDirectory(ToolCachePath);
             Directory.CreateDirectory(NotesPath);
         }
@@ -53,5 +61,29 @@ namespace NotesApp.Utils
         {
             return Path.Combine(NotesPath, $"{note.Name}{NoteExtension}");
         }
+
+        public static bool IsFileNameValid(string fileName, out HashSet<char> invalidCharacters)
+        {
+            invalidCharacters = [];
+
+            if (string.IsNullOrWhiteSpace(fileName))
+                return false;
+
+            foreach (var @char in fileName)
+            {
+                if (_invalidCharacters.Contains(@char))
+                    invalidCharacters.Add(@char);
+            }
+
+            if (invalidCharacters.Count > 0)
+                return false;
+
+            return true;
+        }
+
+        //public static string SanitizeFileName(string fileName)
+        //{
+
+        //}
     }
 }

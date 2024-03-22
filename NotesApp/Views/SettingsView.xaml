@@ -1,0 +1,24 @@
+﻿<Window x:Class="NotesApp.Views.SettingsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:local="clr-namespace:NotesApp.Views"
+        xmlns:viewmodels="clr-namespace:NotesApp.ViewModels"
+        d:DataContext="{d:DesignInstance Type=viewmodels:SettingsViewModel}"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterOwner"
+        Style="{StaticResource MaterialDesignWindow}"
+        Title="SettingsView" Height="450" Width="400">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+
+        <ComboBox materialDesign:HintAssist.Hint="Color theme"
+                  ItemsSource="{Binding ThemesCollection}"
+                  SelectedItem="{Binding SelectedTheme}"
+                  Style="{StaticResource MaterialDesignOutlinedComboBox}" />
+    </Grid>
+</Window>

@@ -3,11 +3,12 @@ using System.Text.RegularExpressions;
 using System.Timers;
 using NotesApp.Managers;
 using NotesApp.Models;
-using WPFBasics;
 using Core;
+using Core.MVVM;
 using Timer = System.Timers.Timer;
 using NotesApp.Views;
 using System.Collections.ObjectModel;
+using System.Windows;
 
 namespace NotesApp.ViewModels
 {
@@ -19,10 +20,16 @@ namespace NotesApp.ViewModels
         /// </summary>
         private readonly Timer _searchQueryDelayTimer = new(300d);
 
-        public MainWindowViewModel()
+        private readonly Window _window;
+
+        public MainWindowViewModel(Window window)
         {
+            _window = window;
+            //SettingsManager.LoadSettingsFile();
+
             SearchNotesCommand = new RelayCommand(SearchNotes);
             CreateNoteCommand = new RelayCommand(CreateNote);
+            OpenSettingsWindowCommand = new RelayCommand(OpenSettingsWindow);
 
             AllNotes = new ObservableCollection<Note>(NoteManager.AllNotes);
             FilteredNotes = AllNotes;
@@ -53,6 +60,7 @@ namespace NotesApp.ViewModels
 
         public RelayCommand SearchNotesCommand { get; set; }
         public RelayCommand CreateNoteCommand { get; set; }
+        public RelayCommand OpenSettingsWindowCommand { get; set; }
 
         private void OnTimerElapsed(object? sender, ElapsedEventArgs e)
         {
@@ -128,7 +136,11 @@ namespace NotesApp.ViewModels
         private void CreateNote()
         {
             // the logic for the create note command
-            var window = new CreateNoteView();
+            var window = new CreateNoteView
+            {
+                Owner = _window
+            };
+
             var res = window.ShowDialog();
             if (res != true)
                 return;
@@ -142,6 +154,16 @@ namespace NotesApp.ViewModels
             AllNotes.Add(note);
 
             SearchNotes();
+        }
+
+        private void OpenSettingsWindow()
+        {
+            var window = new SettingsView
+            {
+                Owner = _window
+            };
+
+            window.ShowDialog();
         }
     }
 }

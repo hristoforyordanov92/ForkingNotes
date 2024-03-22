@@ -8,8 +8,9 @@
         d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
         Style="{StaticResource MaterialDesignWindow}"
         mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
         Title="Forking Notes" Height="400" Width="400">
-    <Grid Margin="4">
+    <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
@@ -17,14 +18,23 @@
         </Grid.RowDefinitions>
 
         <!--Creating new notes-->
-        <StackPanel Grid.Row="0" Margin="0 0 0 4" Orientation="Horizontal">
-            <Button ToolTip="Create Note" Command="{Binding CreateNoteCommand}">
+        <Grid Grid.Row="0" Margin="0 0 0 10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+            
+            <Button Grid.Column="0" ToolTip="Create Note" Command="{Binding CreateNoteCommand}">
                 <materialDesign:PackIcon Kind="FileDocumentPlusOutline" />
             </Button>
-        </StackPanel>
+            <Button Grid.Column="2" ToolTip="Settings" Command="{Binding OpenSettingsWindowCommand}">
+                <materialDesign:PackIcon Kind="Cog" />
+            </Button>
+        </Grid>
 
         <!--Searching for a note-->
-        <Grid Grid.Row="1" Margin="0 0 0 4">
+        <Grid Grid.Row="1" Margin="0 0 0 10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="auto" />

@@ -1,2 +1,2 @@
-# ForkingNotes
-Free Notetaking Software
+# Forking Notes
+Open-source notetaking software
