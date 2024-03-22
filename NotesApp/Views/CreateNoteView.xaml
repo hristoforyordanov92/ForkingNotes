@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewmodels="clr-namespace:NotesApp.ViewModels"
+        Style="{StaticResource MaterialDesignWindow}"
         d:DataContext="{d:DesignInstance Type=viewmodels:CreateNoteViewModel}"
         mc:Ignorable="d"
         Title="New Note" Height="450" Width="400">

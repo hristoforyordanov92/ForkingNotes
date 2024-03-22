@@ -3,9 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:NotesApp.Views"
         xmlns:viewmodels="clr-namespace:NotesApp.ViewModels"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
+        Style="{StaticResource MaterialDesignWindow}"
         mc:Ignorable="d"
         Title="Forking Notes" Height="400" Width="400">
     <Grid Margin="4">
@@ -17,7 +18,9 @@
 
         <!--Creating new notes-->
         <StackPanel Grid.Row="0" Margin="0 0 0 4" Orientation="Horizontal">
-            <Button Padding="4 1" Content="Create Note" Command="{Binding CreateNoteCommand}" />
+            <Button ToolTip="Create Note" Command="{Binding CreateNoteCommand}">
+                <materialDesign:PackIcon Kind="FileDocumentPlusOutline" />
+            </Button>
         </StackPanel>
 
         <!--Searching for a note-->
