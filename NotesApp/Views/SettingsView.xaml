@@ -10,7 +10,7 @@
         mc:Ignorable="d"
         WindowStartupLocation="CenterOwner"
         Style="{StaticResource MaterialDesignWindow}"
-        Title="SettingsView" Height="450" Width="400">
+        Title="Settings" Height="450" Width="400">
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
