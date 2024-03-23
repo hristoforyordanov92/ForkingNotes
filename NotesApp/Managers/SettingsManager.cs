@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using Newtonsoft.Json;
 using NotesApp.Configuration;
 using NotesApp.Utils;
@@ -7,49 +8,67 @@ namespace NotesApp.Managers
 {
     public static class SettingsManager
     {
-        private static bool _isInitialized = false;
+        private static readonly object _settingsLock = new();
 
-        public static Settings CurrentSettings { get; private set; } = new Settings();
-
-        static SettingsManager()
+        private static Settings? _currentSettings;
+        /// <summary>
+        /// The current settings for the application.
+        /// </summary>
+        public static Settings CurrentSettings
         {
-            LoadApplicationSettings();
+            get
+            {
+                if (_currentSettings == null)
+                {
+                    lock (_settingsLock)
+                    {
+                        if (_currentSettings == null)
+                        {
+                            _currentSettings = GetSettings();
+                            SaveSettings(_currentSettings);
+                            _currentSettings.ApplySettings();
+                            _currentSettings.SettingsChanged += OnSettingsChanged;
+                        }
+                    }
+                }
+
+                return _currentSettings;
+            }
         }
 
+        /// <summary>
+        /// Force-loads the settings for the application.
+        /// </summary>
+        /// <exception cref="Exception">Thrown when the settings could not be loaded and ended up as null.</exception>
         public static void LoadApplicationSettings()
         {
-            if (_isInitialized)
-                return;
-
-            LoadSettingsFile();
-
-            _isInitialized = true;
+            // todo: a bit of a fake way to force the settings to apply to the app, but it will do for now
+            if (CurrentSettings == null)
+                throw new Exception($"{nameof(CurrentSettings)} could not be loaded properly.");
         }
 
-        private static void LoadSettingsFile()
+        private static Settings GetSettings()
         {
-            CurrentSettings.SettingsChanged -= OnSettingsChanged;
+            Settings settings;
 
             if (!File.Exists(PathHelper.SettingsFilePath))
             {
-                CurrentSettings = new Settings();
+                settings = new Settings();
             }
             else
             {
                 string settingsJson = File.ReadAllText(PathHelper.SettingsFilePath);
-                // todo: is it possible to be null?
-                CurrentSettings = JsonConvert.DeserializeObject<Settings>(settingsJson) ?? new Settings();
+                // DeserializeObject could return null when the file is empty
+                settings = JsonConvert.DeserializeObject<Settings>(settingsJson) ?? new Settings();
             }
 
-            SaveSettings();
-            CurrentSettings.ApplySettings();
-            CurrentSettings.SettingsChanged += OnSettingsChanged;
+            return settings;
         }
 
-        private static void SaveSettings()
+        private static void SaveSettings(Settings settings)
         {
             string settingsJson = JsonConvert.SerializeObject(
-                CurrentSettings,
+                settings,
                 Formatting.Indented);
 
             File.WriteAllText(PathHelper.SettingsFilePath, settingsJson);
@@ -57,7 +76,7 @@ namespace NotesApp.Managers
 
         private static void OnSettingsChanged()
         {
-            SaveSettings();
+            SaveSettings(CurrentSettings);
         }
     }
 }
