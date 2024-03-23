@@ -2,47 +2,117 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:viewmodels="clr-namespace:NotesApp.ViewModels"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:validation="clr-namespace:NotesApp.Validations"
+        xmlns:viewmodels="clr-namespace:NotesApp.ViewModels"
+        Title="Forking Notes"
+        Width="800"
+        Height="800"
         d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
+        SizeChanged="OnMainWindowSizeChanged"
+        StateChanged="OnMainWindowStateChanged"
         Style="{StaticResource MaterialDesignWindow}"
-        mc:Ignorable="d"
+        Topmost="True"
         WindowStartupLocation="CenterScreen"
-        Title="Forking Notes" Height="400" Width="700">
-    <Grid Margin="10">
+        mc:Ignorable="d">
+    <Grid Name="MainGrid">
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MinWidth="100" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition MinWidth="100" />
+        </Grid.ColumnDefinitions>
 
-        <!--Creating new notes-->
-        <Grid Grid.Row="0" Margin="0 0 0 20">
+        <!--Topmost Toolbar-->
+        <materialDesign:ColorZone Grid.Row="0"
+                                  Grid.Column="0"
+                                  Grid.ColumnSpan="3"
+                                  Margin="0,0,0,10"
+                                  Padding="10,10,10,0">
+            <DockPanel>
+                <Button Width="32"
+                        Height="32"
+                        Padding="0"
+                        HorizontalAlignment="Left"
+                        materialDesign:ElevationAssist.Elevation="Dp0"
+                        BorderThickness="0"
+                        Command="{Binding CreateNoteCommand}"
+                        Content="{materialDesign:PackIcon Kind=FileDocumentPlusOutline,
+                                                          Size=24}"
+                        DockPanel.Dock="Left"
+                        Style="{StaticResource MaterialDesignPaperButton}"
+                        ToolTip="Create Note" />
+
+                <Button Width="32"
+                        Height="32"
+                        Padding="0"
+                        HorizontalAlignment="Right"
+                        materialDesign:ElevationAssist.Elevation="Dp0"
+                        BorderThickness="0"
+                        Command="{Binding OpenSettingsWindowCommand}"
+                        Content="{materialDesign:PackIcon Kind=Cog,
+                                                          Size=24}"
+                        DockPanel.Dock="Right"
+                        Style="{StaticResource MaterialDesignPaperButton}"
+                        ToolTip="Settings" />
+            </DockPanel>
+        </materialDesign:ColorZone>
+
+        <!--Left Grid Column-->
+        <Grid Grid.Row="1"
+              Grid.Column="0"
+              Margin="10,0,0,10">
+            <materialDesign:Card />
+        </Grid>
+
+        <GridSplitter Grid.Row="1"
+                      Grid.Column="1"
+                      Width="6"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Stretch"
+                      Background="Transparent"
+                      DragCompleted="GridSplitter_DragCompleted" />
+
+        <!--Right Grid Column-->
+        <Grid Grid.Row="1"
+              Grid.Column="2"
+              Margin="0,0,10,10">
+            <materialDesign:Card />
+        </Grid>
+
+        <!--  Creating new notes  -->
+        <!--<Grid Grid.Row="2" Margin="0,0,0,20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="0" ToolTip="Create Note" Command="{Binding CreateNoteCommand}">
+            <Button Grid.Column="0"
+                    Command="{Binding CreateNoteCommand}"
+                    ToolTip="Create Note">
                 <materialDesign:PackIcon Kind="FileDocumentPlusOutline" />
             </Button>
-            <Button Grid.Column="2" ToolTip="Settings" Command="{Binding OpenSettingsWindowCommand}">
+            <Button Grid.Column="2"
+                    Command="{Binding OpenSettingsWindowCommand}"
+                    ToolTip="Settings">
                 <materialDesign:PackIcon Kind="Cog" />
             </Button>
-        </Grid>
+        </Grid>-->
 
-        <!--Searching for a note-->
-        <Grid Grid.Row="1" Margin="0 0 0 20">
+        <!--  Searching for a note  -->
+        <!--<Grid Grid.Row="2" Margin="0,0,0,20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="150" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <TextBox Grid.Column="0"
-                     Margin="0 0 10 0"
+                     Margin="0,0,10,0"
                      VerticalAlignment="Top"
                      materialDesign:HintAssist.Hint="Tag">
                 <TextBox.Text>
@@ -57,7 +127,7 @@
                 </TextBox.InputBindings>
             </TextBox>
 
-            <ItemsControl Grid.Column="1" ItemsSource="{Binding SearchTags}">
+            <ItemsControl Grid.Column="3" ItemsSource="{Binding SearchTags}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel Orientation="Horizontal" />
@@ -66,34 +136,34 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <materialDesign:Chip Content="{Binding}"
-                                             IsDeletable="True"
                                              DeleteCommand="{Binding DataContext.RemoveSearchTagCommand, RelativeSource={RelativeSource AncestorType=ItemsControl, Mode=FindAncestor}}"
-                                             DeleteCommandParameter="{Binding}">
+                                             DeleteCommandParameter="{Binding}"
+                                             IsDeletable="True">
                             <materialDesign:Chip.InputBindings>
-                                <MouseBinding MouseAction="MiddleClick"
-                                              Command="{Binding DataContext.RemoveSearchTagCommand, RelativeSource={RelativeSource AncestorType=ItemsControl, Mode=FindAncestor}}"
-                                              CommandParameter="{Binding}" />
+                                <MouseBinding Command="{Binding DataContext.RemoveSearchTagCommand, RelativeSource={RelativeSource AncestorType=ItemsControl, Mode=FindAncestor}}"
+                                              CommandParameter="{Binding}"
+                                              MouseAction="MiddleClick" />
                             </materialDesign:Chip.InputBindings>
                         </materialDesign:Chip>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-        </Grid>
+        </Grid>-->
 
-        <!--All/filtered notes-->
-        <ListView Grid.Row="2" ItemsSource="{Binding FilteredNotes}">
+        <!--  All/filtered notes  -->
+        <!--<ListView Grid.Row="4" ItemsSource="{Binding FilteredNotes}">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Vertical">
                         <ItemsControl ItemsSource="{Binding Tags}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Horizontal"/>
+                                    <StackPanel Orientation="Horizontal" />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <TextBlock Margin="0 0 2 0" Text="{Binding}" />
+                                    <TextBlock Margin="0,0,2,0" Text="{Binding}" />
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
@@ -101,6 +171,6 @@
                     </StackPanel>
                 </DataTemplate>
             </ListView.ItemTemplate>
-        </ListView>
+        </ListView>-->
     </Grid>
 </Window>

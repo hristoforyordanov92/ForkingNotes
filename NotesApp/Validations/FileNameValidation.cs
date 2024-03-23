@@ -10,12 +10,16 @@ namespace NotesApp.Validations
         {
             if (value is not string name || string.IsNullOrWhiteSpace(name))
             {
-                return new ValidationResult(false, "Name cannot be empty");
+                return new ValidationResult(
+                    false,
+                    "Name cannot be empty");
             }
 
             if (!PathHelper.IsFileNameValid(name, out HashSet<char> invalidChars))
             {
-                return new ValidationResult(false, $"Name contains invalid characters: {string.Join("", invalidChars)}");
+                return new ValidationResult(
+                    false,
+                    $"Name contains invalid characters: {string.Join("", invalidChars)}");
             }
 
             return ValidationResult.ValidResult;

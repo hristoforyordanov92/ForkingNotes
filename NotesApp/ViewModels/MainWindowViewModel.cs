@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using System.Text.RegularExpressions;
-using System.Timers;
+﻿using System.Timers;
 using NotesApp.Managers;
 using NotesApp.Models;
 using Core;

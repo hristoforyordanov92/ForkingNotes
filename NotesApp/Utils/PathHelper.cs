@@ -62,7 +62,9 @@ namespace NotesApp.Utils
             return Path.Combine(NotesPath, $"{note.Name}{NoteExtension}");
         }
 
-        public static bool IsFileNameValid(string fileName, out HashSet<char> invalidCharacters)
+        public static bool IsFileNameValid(
+            string fileName,
+            out HashSet<char> invalidCharacters)
         {
             invalidCharacters = [];
 

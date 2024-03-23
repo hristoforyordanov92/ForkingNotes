@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using Newtonsoft.Json;
 using NotesApp.Configuration;
 using NotesApp.Utils;
@@ -18,21 +17,21 @@ namespace NotesApp.Managers
         {
             get
             {
-                if (_currentSettings == null)
-                {
-                    lock (_settingsLock)
-                    {
-                        if (_currentSettings == null)
-                        {
-                            _currentSettings = GetSettings();
-                            SaveSettings(_currentSettings);
-                            _currentSettings.ApplySettings();
-                            _currentSettings.SettingsChanged += OnSettingsChanged;
-                        }
-                    }
-                }
+                if (_currentSettings != null)
+                    return _currentSettings;
 
-                return _currentSettings;
+                lock (_settingsLock)
+                {
+                    if (_currentSettings != null)
+                        return _currentSettings;
+
+                    _currentSettings = GetSettings();
+                    SaveSettings(_currentSettings);
+                    _currentSettings.ApplySettings();
+                    _currentSettings.SettingsChanged += OnSettingsChanged;
+
+                    return _currentSettings;
+                }
             }
         }
 

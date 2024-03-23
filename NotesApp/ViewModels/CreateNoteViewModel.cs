@@ -1,5 +1,4 @@
-﻿using System.Windows;
-using NotesApp.Models;
+﻿using NotesApp.Models;
 using Core.MVVM;
 
 namespace NotesApp.ViewModels
