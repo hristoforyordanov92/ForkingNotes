@@ -19,9 +19,14 @@
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
 
-        <TextBox Grid.Row="0"
+        <TextBox Name="_NoteName"
+                 Grid.Row="0"
                  Margin="0,0,0,26"
                  materialDesign:HintAssist.Hint="Name">
+            <TextBox.InputBindings>
+                <KeyBinding Key="Esc" Command="{Binding CloseWindowCommand}" />
+                <KeyBinding Key="Return" Command="{Binding CreateNoteCommand}" />
+            </TextBox.InputBindings>
             <TextBox.Text>
                 <Binding Path="Name" UpdateSourceTrigger="PropertyChanged">
                     <Binding.ValidationRules>
@@ -32,8 +37,8 @@
         </TextBox>
 
         <Button Grid.Row="1"
-                Style="{StaticResource MaterialDesignPaperButton}"
                 Command="{Binding CreateNoteCommand}"
-                Content="Create Note" />
+                Content="Create Note"
+                Style="{StaticResource MaterialDesignPaperButton}" />
     </Grid>
 </Window>
