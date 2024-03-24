@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
 using NotesApp.Managers;
 using Core.MVVM;
+using System.ComponentModel;
+using System.Collections;
 
 namespace NotesApp.Models
 {
@@ -17,24 +19,11 @@ namespace NotesApp.Models
         /// <summary>
         /// Constructor of the note class.
         /// </summary>
-        /// <param name="name">The name of the note. Should already be sanitized from illegal path/file name characters!</param>
-        /// <param name="tags">The tags to associate the note with.</param>
-        /// <param name="content">The contents of the note.</param>
-        public Note(string name, List<string>? tags = null, string content = "")
+        /// <param name="fileName">The file name of the note.</param>
+        public Note(string fileName)
         {
-            Name = name;
-            Tags = tags ?? [];
-            Content = content;
-        }
-
-        private string _name = string.Empty;
-        /// <summary>
-        /// The name of the note. Can be set to whatever the user wants.
-        /// </summary>
-        public string Name
-        {
-            get => _name;
-            set => SetField(ref _name, value);
+            FileName = fileName;
+            Name = fileName;
         }
 
         private string _fileName = string.Empty;
@@ -45,6 +34,16 @@ namespace NotesApp.Models
         {
             get => _fileName;
             set => SetField(ref _fileName, value);
+        }
+
+        private string _name = string.Empty;
+        /// <summary>
+        /// The name of the note. Can be set to whatever the user wants.
+        /// </summary>
+        public string Name
+        {
+            get => _name;
+            set => SetField(ref _name, value);
         }
 
         // todo: we might need to make tags a class. then maybe have a graph of tags.
@@ -59,6 +58,7 @@ namespace NotesApp.Models
         }
 
         private string _content = string.Empty;
+
         /// <summary>
         /// The contents of the note.
         /// </summary>

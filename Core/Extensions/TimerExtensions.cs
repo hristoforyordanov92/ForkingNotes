@@ -1,6 +1,6 @@
 ﻿using Timer = System.Timers.Timer;
 
-namespace Core
+namespace Core.Extensions
 {
     public static class TimerExtensions
     {

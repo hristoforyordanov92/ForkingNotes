@@ -59,7 +59,12 @@ namespace NotesApp.Utils
         /// <returns>Returns the full path, file name and extension of a note.</returns>
         public static string GetNoteFilePath(Note note)
         {
-            return Path.Combine(NotesPath, $"{note.Name}{NoteExtension}");
+            return GetNoteFilePath(note.FileName);
+        }
+
+        public static string GetNoteFilePath(string fileName)
+        {
+            return Path.Combine(NotesPath, $"{fileName}{NoteExtension}");
         }
 
         public static bool IsFileNameValid(

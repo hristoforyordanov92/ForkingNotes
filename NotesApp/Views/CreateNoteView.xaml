@@ -22,18 +22,12 @@
         <TextBox Name="_NoteName"
                  Grid.Row="0"
                  Margin="0,0,0,26"
-                 materialDesign:HintAssist.Hint="Name">
+                 materialDesign:HintAssist.Hint="Name"
+                 Text="{Binding FileName, UpdateSourceTrigger=PropertyChanged}">
             <TextBox.InputBindings>
                 <KeyBinding Key="Esc" Command="{Binding CloseWindowCommand}" />
                 <KeyBinding Key="Return" Command="{Binding CreateNoteCommand}" />
             </TextBox.InputBindings>
-            <TextBox.Text>
-                <Binding Path="Name" UpdateSourceTrigger="PropertyChanged">
-                    <Binding.ValidationRules>
-                        <validations:FileNameValidation ValidatesOnTargetUpdated="True" />
-                    </Binding.ValidationRules>
-                </Binding>
-            </TextBox.Text>
         </TextBox>
 
         <Button Grid.Row="1"

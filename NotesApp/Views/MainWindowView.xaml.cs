@@ -1,5 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
 using NotesApp.Managers;
 using NotesApp.ViewModels;
 
@@ -33,7 +35,7 @@ namespace NotesApp.Views
             leftColumn.Width = new GridLength(
                 SettingsManager.CurrentSettings.MainWindowLeftColumnWidth,
                 GridUnitType.Star);
-            leftColumn.MinWidth = 100;
+            leftColumn.MinWidth = 200;
 
             ColumnDefinition splitterColumn = MainGrid.ColumnDefinitions[1];
             splitterColumn.Width = new GridLength(1, GridUnitType.Auto);
@@ -42,7 +44,7 @@ namespace NotesApp.Views
             rightColumn.Width = new GridLength(
                 SettingsManager.CurrentSettings.MainWindowRightColumnWidth,
                 GridUnitType.Star);
-            rightColumn.MinWidth = 100;
+            rightColumn.MinWidth = 200;
         }
 
         private void GridSplitter_DragCompleted(
@@ -66,6 +68,29 @@ namespace NotesApp.Views
         {
             SettingsManager.CurrentSettings.MainWindowIsMaximized =
                 WindowState == WindowState.Maximized;
+        }
+
+        private void OnPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.OriginalSource is not DependencyObject dependencyObject)
+                return;
+
+            TreeViewItem? treeViewItem = VisualUpwardSearch(dependencyObject);
+
+            if (treeViewItem != null)
+            {
+                treeViewItem.IsSelected = true;
+                treeViewItem.Focus();
+                e.Handled = true;
+            }
+        }
+
+        static TreeViewItem? VisualUpwardSearch(DependencyObject source)
+        {
+            while (source != null && source is not TreeViewItem)
+                source = VisualTreeHelper.GetParent(source);
+
+            return source as TreeViewItem;
         }
     }
 }

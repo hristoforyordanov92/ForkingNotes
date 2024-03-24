@@ -1,12 +1,12 @@
 ﻿using System.Timers;
 using NotesApp.Managers;
 using NotesApp.Models;
-using Core;
 using Core.MVVM;
 using Timer = System.Timers.Timer;
 using NotesApp.Views;
 using System.Collections.ObjectModel;
 using System.Windows;
+using Core.Extensions;
 
 namespace NotesApp.ViewModels
 {
@@ -28,6 +28,7 @@ namespace NotesApp.ViewModels
 
             SearchNotesCommand = new RelayCommand(SearchNotes);
             CreateNoteCommand = new RelayCommand(CreateNote);
+            DeleteNoteCommand = new RelayCommand(DeleteNote);
             OpenSettingsWindowCommand = new RelayCommand(OpenSettingsWindow);
             AddSearchTagCommand = new RelayCommand(AddSearchTag);
             RemoveSearchTagCommand = new RelayCommand<object>(RemoveSearchTag);
@@ -89,8 +90,11 @@ namespace NotesApp.ViewModels
             set => SetField(ref _filteredNotes, value);
         }
 
+        public Note SelectedNote { get; set; }
+
         public RelayCommand SearchNotesCommand { get; set; }
         public RelayCommand CreateNoteCommand { get; set; }
+        public RelayCommand DeleteNoteCommand { get; set; }
         public RelayCommand OpenSettingsWindowCommand { get; set; }
 
         private void OnTimerElapsed(object? sender, ElapsedEventArgs e)
@@ -204,6 +208,22 @@ namespace NotesApp.ViewModels
             NoteManager.SaveNote(note);
 
             AllNotes.Add(note);
+
+            SearchNotes();
+        }
+
+        private void DeleteNote()
+        {
+            if (SelectedNote == null)
+                return;
+            var note = SelectedNote;
+            //if (parameter is not Note note)
+            //    return;
+
+            // todo: ask the user if they want to delete the note before deleting it :)
+
+            AllNotes.Remove(note);
+            NoteManager.DeleteNote(note);
 
             SearchNotes();
         }

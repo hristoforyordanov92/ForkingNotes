@@ -46,20 +46,37 @@ namespace NotesApp.Managers
             return loadedNotes;
         }
 
-        public static Note CreateNote(string name)
+        public static Note CreateNote(string fileName)
         {
-            Note note = new(name);
+            Note note = new(fileName);
 
             SaveNote(note);
 
             return note;
         }
 
+        public static void DeleteNote(Note note)
+        {
+            string path = PathHelper.GetNoteFilePath(note);
+            File.Delete(path);
+        }
+
         public static void SaveNote(Note note)
         {
-            var path = PathHelper.GetNoteFilePath(note);
-            var noteJson = JsonConvert.SerializeObject(note);
+            string path = PathHelper.GetNoteFilePath(note);
+            string noteJson = JsonConvert.SerializeObject(note);
             File.WriteAllText(path, noteJson);
+        }
+
+        public static bool NoteFileExists(string fileName)
+        {
+            string noteFilePath = PathHelper.GetNoteFilePath(fileName);
+            return File.Exists(noteFilePath);
+        }
+
+        public static bool NoteFileExists(Note note)
+        {
+            return NoteFileExists(note.FileName);
         }
     }
 }

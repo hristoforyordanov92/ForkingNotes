@@ -14,13 +14,13 @@ namespace NotesApp.Views
         public CreateNoteView()
         {
             InitializeComponent();
-            var vm = new CreateNoteViewModel();
-            vm.NoteCreated += OnNoteCreated;
-            DataContext = vm;
+            CreateNoteViewModel viewModel = new();
+            viewModel.NoteCreated += OnNoteCreated;
+            DataContext = viewModel;
             _NoteName.Focus();
         }
 
-        // todo: maybe rework to please the "design patterns" gods
+        // todo: maybe rework to please the "design patterns" gods.
         private void OnNoteCreated(Note? obj)
         {
             Note = obj;

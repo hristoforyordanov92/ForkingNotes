@@ -1,5 +1,6 @@
 ﻿using NotesApp.Models;
 using Core.MVVM;
+using NotesApp.Validations;
 
 namespace NotesApp.ViewModels
 {
@@ -9,24 +10,29 @@ namespace NotesApp.ViewModels
 
         public CreateNoteViewModel()
         {
-            CreateNoteCommand = new RelayCommand(CreateNote);
+            CreateNoteCommand = new RelayCommand(CreateNote, () => IsValid(nameof(FileName)));
             CloseWindowCommand = new RelayCommand(CloseWindow);
+
+            RegisterPropertiesDependency(CreateNoteCommand, nameof(FileName));
         }
 
-        public string? Name { get; set; }
-        public string? Tags { get; set; }
-        public string? Content { get; set; }
+        private string? _fileName = string.Empty;
+        [FileNameValidation]
+        public string? FileName
+        {
+            get => _fileName;
+            set => SetAndValidateField(ref _fileName, value);
+        }
 
         public RelayCommand CreateNoteCommand { get; set; }
         public RelayCommand CloseWindowCommand { get; set; }
 
         private void CreateNote()
         {
-            if (string.IsNullOrWhiteSpace(Name))
+            if (string.IsNullOrWhiteSpace(FileName))
                 return;
 
-            var note = new Note(Name);
-
+            Note note = new(FileName);
             NoteCreated?.Invoke(note);
         }
 

@@ -91,6 +91,11 @@ namespace NotesApp.Configuration
 
         #endregion
 
+        // todo: add a way to change the folder in which the application will save the notes and settings.
+        // todo: also when the folder is changed, allow the user to also move the old file to the new folder
+        // todo: maybe we'll need to make something like Obsidian, where they make a Vault for each "project".
+        // so we can save the settings in the Vault folder. but this could be problematic, because we might need global settings...
+
         public void ApplySettings()
         {
             ThemeManager.ApplyBaseTheme(Theme);

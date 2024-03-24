@@ -16,15 +16,22 @@
         Topmost="True"
         WindowStartupLocation="CenterScreen"
         mc:Ignorable="d">
+
+    <Window.InputBindings>
+        <KeyBinding Key="N"
+                    Command="{Binding CreateNoteCommand}"
+                    Modifiers="Ctrl" />
+    </Window.InputBindings>
+
     <Grid Name="MainGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition MinWidth="100" />
+            <ColumnDefinition MinWidth="200" />
             <ColumnDefinition Width="Auto" />
-            <ColumnDefinition MinWidth="100" />
+            <ColumnDefinition MinWidth="200" />
         </Grid.ColumnDefinitions>
 
         <!--Topmost Toolbar-->
@@ -66,7 +73,45 @@
         <Grid Grid.Row="1"
               Grid.Column="0"
               Margin="10,0,0,10">
-            <materialDesign:Card />
+            <materialDesign:Card>
+                <ListView ItemsSource="{Binding FilteredNotes, UpdateSourceTrigger=PropertyChanged}"
+                          MouseRightButtonDown="OnPreviewMouseRightButtonDown"
+                          SelectedItem="{Binding SelectedNote}">
+                    <ListView.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Padding="6,0,12,0"
+                                      Command="{Binding Path=DataContext.DeleteNoteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu, Mode=FindAncestor}}"
+                                      ToolTip="Delete the current Note">
+                                <MenuItem.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ContentPresenter Margin="0,0,6,0" Content="{materialDesign:PackIcon Kind=DeleteOutline}" />
+                                        <TextBlock Text="Delete" />
+                                    </StackPanel>
+                                </MenuItem.Header>
+                            </MenuItem>
+                        </ContextMenu>
+                    </ListView.ContextMenu>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Vertical">
+                                <!--<ItemsControl ItemsSource="{Binding Tags}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Margin="0,0,2,0" Text="{Binding}" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>-->
+                                <TextBlock Text="{Binding Name}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </materialDesign:Card>
         </Grid>
 
         <GridSplitter Grid.Row="1"
@@ -84,7 +129,7 @@
             <materialDesign:Card />
         </Grid>
 
-        <!--  Creating new notes  -->
+        <!--Creating new notes-->
         <!--<Grid Grid.Row="2" Margin="0,0,0,20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto" />
@@ -104,7 +149,7 @@
             </Button>
         </Grid>-->
 
-        <!--  Searching for a note  -->
+        <!--Searching for a note-->
         <!--<Grid Grid.Row="2" Margin="0,0,0,20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="150" />
@@ -150,7 +195,7 @@
             </ItemsControl>
         </Grid>-->
 
-        <!--  All/filtered notes  -->
+        <!--All/filtered notes-->
         <!--<ListView Grid.Row="4" ItemsSource="{Binding FilteredNotes}">
             <ListView.ItemTemplate>
                 <DataTemplate>
