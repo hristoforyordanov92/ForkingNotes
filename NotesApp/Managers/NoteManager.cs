@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 using NotesApp.Models;
 using NotesApp.Utils;
@@ -40,6 +39,7 @@ namespace NotesApp.Managers
                     continue;
                 }
 
+                note.FileName = Path.GetFileNameWithoutExtension(noteFile);
                 loadedNotes.Add(note);
             }
 

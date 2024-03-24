@@ -1,13 +1,7 @@
-﻿using System.Windows.Input;
-
-namespace Core.MVVM
+﻿namespace Core.MVVM
 {
-    public interface IEnchancedCommand : ICommand
-    {
-        void RaiseCanExecuteChanged();
-    }
-
-    public class RelayCommand(Action execute, Func<bool>? canExecute = null) : IEnchancedCommand
+    public class RelayCommand(Action execute, Func<bool>? canExecute = null)
+        : IExtendedCommand
     {
         private readonly Action _execute = execute;
         private readonly Func<bool>? _canExecute = canExecute;
@@ -30,7 +24,8 @@ namespace Core.MVVM
         }
     }
 
-    public class RelayCommand<T>(Action<T?> execute, Func<T?, bool>? canExecute = null) : IEnchancedCommand
+    public class RelayCommand<T>(Action<T?> execute, Func<T?, bool>? canExecute = null)
+        : IExtendedCommand
     {
         private readonly Action<T?> _execute = execute;
         private readonly Func<T?, bool>? _canExecute = canExecute;

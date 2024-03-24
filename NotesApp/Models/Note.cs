@@ -1,11 +1,12 @@
 ﻿using Newtonsoft.Json;
 using NotesApp.Managers;
 using Core.MVVM;
-using System.ComponentModel;
-using System.Collections;
 
 namespace NotesApp.Models
 {
+    // todo: possibly create an underlying data structure to use for serialization
+    // and use this class for a model. this will make deserialization easier and will allow
+    // for greater flexibility when deserializing tags. that, or use custom jsonconverters/jsonserializers/jsonwhatevers per property type
     [JsonObject(memberSerialization: MemberSerialization.OptIn)]
     public class Note : ViewModelBase
     {
@@ -27,7 +28,6 @@ namespace NotesApp.Models
             Name = fileName;
         }
 
-        [JsonProperty(nameof(FileName))]
         private string _fileName = string.Empty;
         /// <summary>
         /// The name of the note's file. This must not contain any of the file system's invalid characters.

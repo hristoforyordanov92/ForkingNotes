@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using MaterialDesignThemes.Wpf;
+﻿using MaterialDesignThemes.Wpf;
 using Newtonsoft.Json;
 using NotesApp.Managers;
 

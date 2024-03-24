@@ -12,16 +12,21 @@ namespace Core.MVVM
         /// <summary>
         /// Dictionary containing property names and commands, which are dependent on the properties' validations.
         /// </summary>
-        private readonly Dictionary<string, IEnchancedCommand> _propertyDependents = [];
+        private readonly Dictionary<string, IExtendedCommand> _propertyDependents = [];
 
         public bool HasErrors => _errors.Count > 0;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
 
-        // This method is called by the Set accessor of each property.
-        // The CallerMemberName attribute that is applied to the optional propertyName
-        // parameter causes the property name of the caller to be substituted as an argument.
+        /// <summary>
+        /// Sets a backing field. Raises PropertyChanged event when successfully set.
+        /// </summary>
+        /// <typeparam name="T">The type of the backing field.</typeparam>
+        /// <param name="field">A reference to the backing field which will be set.</param>
+        /// <param name="value">The value to set the backing field to.</param>
+        /// <param name="propertyName">Name of the Property for which a PropertyChanged event will be raised.</param>
+        /// <returns>True if the field is set properly, false otherwise.</returns>
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
         {
             if (Equals(field, value))
@@ -32,15 +37,21 @@ namespace Core.MVVM
             return true;
         }
 
+        /// <summary>
+        /// Sets and validates a backing field. Raises PropertyChanged event when successfully set.
+        /// </summary>
+        /// <typeparam name="T">The type of the backing field.</typeparam>
+        /// <param name="field">A reference to the backing field which will be set.</param>
+        /// <param name="value">The value to set the backing field to.</param>
+        /// <param name="propertyName">Name of the Property for which a PropertyChanged event will be raised.</param>
+        /// <returns>True if the field is set properly, false otherwise. Return result does not factor in the validation status of the backing field.</returns>
         protected bool SetAndValidateField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
         {
-            if (SetField(ref field, value, propertyName))
-            {
-                Validate(field, propertyName);
-                return true;
-            }
+            if (!SetField(ref field, value, propertyName))
+                return false;
 
-            return false;
+            Validate(field, propertyName);
+            return true;
         }
 
         protected void RaisePropertyChanged([CallerMemberName] string propertyName = "")
@@ -94,7 +105,7 @@ namespace Core.MVVM
 
             ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
 
-            if (_propertyDependents.TryGetValue(propertyName, out IEnchancedCommand? command))
+            if (_propertyDependents.TryGetValue(propertyName, out IExtendedCommand? command))
                 command.RaiseCanExecuteChanged();
         }
 
@@ -104,7 +115,7 @@ namespace Core.MVVM
         /// </summary>
         /// <param name="command">The command to register as dependent.</param>
         /// <param name="properties">The properties which will trigger the command's CanExecute reevaluation.</param>
-        protected void RegisterPropertiesDependency(IEnchancedCommand command, params string[] properties)
+        protected void RegisterPropertiesDependency(IExtendedCommand command, params string[] properties)
         {
             foreach (var property in properties)
                 _propertyDependents.Add(property, command);
