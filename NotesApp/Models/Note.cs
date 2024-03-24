@@ -6,6 +6,7 @@ using System.Collections;
 
 namespace NotesApp.Models
 {
+    [JsonObject(memberSerialization: MemberSerialization.OptIn)]
     public class Note : ViewModelBase
     {
         /// <summary>
@@ -26,6 +27,7 @@ namespace NotesApp.Models
             Name = fileName;
         }
 
+        [JsonProperty(nameof(FileName))]
         private string _fileName = string.Empty;
         /// <summary>
         /// The name of the note's file. This must not contain any of the file system's invalid characters.
@@ -36,6 +38,7 @@ namespace NotesApp.Models
             set => SetField(ref _fileName, value);
         }
 
+        [JsonProperty(nameof(Name))]
         private string _name = string.Empty;
         /// <summary>
         /// The name of the note. Can be set to whatever the user wants.
@@ -46,6 +49,7 @@ namespace NotesApp.Models
             set => SetField(ref _name, value);
         }
 
+        [JsonProperty(nameof(Tags))]
         // todo: we might need to make tags a class. then maybe have a graph of tags.
         private List<string> _tags = [];
         /// <summary>
@@ -58,7 +62,7 @@ namespace NotesApp.Models
         }
 
         private string _content = string.Empty;
-
+        [JsonProperty(nameof(Content))]
         /// <summary>
         /// The contents of the note.
         /// </summary>

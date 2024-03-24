@@ -48,11 +48,24 @@
                         materialDesign:ElevationAssist.Elevation="Dp0"
                         BorderThickness="0"
                         Command="{Binding CreateNoteCommand}"
-                        Content="{materialDesign:PackIcon Kind=FileDocumentPlusOutline,
+                        Content="{materialDesign:PackIcon Kind=FileDocumentPlus,
                                                           Size=24}"
                         DockPanel.Dock="Left"
                         Style="{StaticResource MaterialDesignPaperButton}"
                         ToolTip="Create Note" />
+
+                <Button Width="32"
+                        Height="32"
+                        Padding="0"
+                        HorizontalAlignment="Left"
+                        materialDesign:ElevationAssist.Elevation="Dp0"
+                        BorderThickness="0"
+                        Command="{Binding SaveNoteChangesCommand}"
+                        Content="{materialDesign:PackIcon Kind=ContentSave,
+                                                          Size=24}"
+                        DockPanel.Dock="Left"
+                        Style="{StaticResource MaterialDesignPaperButton}"
+                        ToolTip="Save Note Changes" />
 
                 <Button Width="32"
                         Height="32"
@@ -93,8 +106,9 @@
                     </ListView.ContextMenu>
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Vertical">
-                                <!--<ItemsControl ItemsSource="{Binding Tags}">
+                            <TextBlock Text="{Binding Name}" />
+                            <!--<StackPanel Orientation="Vertical">
+                                <ItemsControl ItemsSource="{Binding Tags}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <StackPanel Orientation="Horizontal" />
@@ -105,9 +119,9 @@
                                             <TextBlock Margin="0,0,2,0" Text="{Binding}" />
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
-                                </ItemsControl>-->
-                                <TextBlock Text="{Binding Name}" />
-                            </StackPanel>
+                                </ItemsControl>
+
+                            </StackPanel>-->
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
@@ -126,7 +140,41 @@
         <Grid Grid.Row="1"
               Grid.Column="2"
               Margin="0,0,10,10">
-            <materialDesign:Card />
+            <materialDesign:Card>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0"
+                                Margin="10"
+                                HorizontalAlignment="Center"
+                                Orientation="Horizontal">
+                        <TextBlock Margin="0,0,8,0"
+                                   FontSize="40"
+                                   Text="{Binding SelectedNote.Name}" />
+                        <Button Width="32"
+                                Height="32"
+                                Padding="0"
+                                HorizontalAlignment="Left"
+                                materialDesign:ElevationAssist.Elevation="Dp0"
+                                BorderThickness="0"
+                                Content="{materialDesign:PackIcon Kind=Pencil,
+                                                                  Size=24}"
+                                Style="{StaticResource MaterialDesignOutlinedButton}" />
+                    </StackPanel>
+
+                    <TextBox Grid.Row="1"
+                             Margin="20"
+                             materialDesign:HintAssist.Background="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=materialDesign:Card}}"
+                             materialDesign:HintAssist.Hint="Contents"
+                             AcceptsReturn="True"
+                             Text="{Binding SelectedNote.Content}"
+                             TextWrapping="Wrap"
+                             VerticalScrollBarVisibility="Auto" />
+                </Grid>
+            </materialDesign:Card>
         </Grid>
 
         <!--Creating new notes-->

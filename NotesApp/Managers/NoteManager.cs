@@ -64,7 +64,7 @@ namespace NotesApp.Managers
         public static void SaveNote(Note note)
         {
             string path = PathHelper.GetNoteFilePath(note);
-            string noteJson = JsonConvert.SerializeObject(note);
+            string noteJson = JsonConvert.SerializeObject(note, Formatting.Indented);
             File.WriteAllText(path, noteJson);
         }
 

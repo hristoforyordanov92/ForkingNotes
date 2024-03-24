@@ -12,6 +12,14 @@ namespace NotesApp.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
+        // todo: maybe remove
+        private enum Keyword
+        {
+            Tags,
+            Content,
+            File
+        }
+
         /// <summary>
         /// Timer used for delaying each search query to avoid constant filtering and searching
         /// while the user still haven't finished typing their search query.
@@ -29,6 +37,7 @@ namespace NotesApp.ViewModels
             SearchNotesCommand = new RelayCommand(SearchNotes);
             CreateNoteCommand = new RelayCommand(CreateNote);
             DeleteNoteCommand = new RelayCommand(DeleteNote);
+            SaveNoteChangesCommand = new RelayCommand(SaveNoteChanges);
             OpenSettingsWindowCommand = new RelayCommand(OpenSettingsWindow);
             AddSearchTagCommand = new RelayCommand(AddSearchTag);
             RemoveSearchTagCommand = new RelayCommand<object>(RemoveSearchTag);
@@ -40,6 +49,15 @@ namespace NotesApp.ViewModels
             _searchQueryDelayTimer.Elapsed += OnTimerElapsed;
         }
 
+        public RelayCommand AddSearchTagCommand { get; set; }
+        public RelayCommand<object> RemoveSearchTagCommand { get; set; }
+        public RelayCommand SearchNotesCommand { get; set; }
+        public RelayCommand CreateNoteCommand { get; set; }
+        public RelayCommand DeleteNoteCommand { get; set; }
+        public RelayCommand SaveNoteChangesCommand { get; set; }
+        public RelayCommand OpenSettingsWindowCommand { get; set; }
+
+        private ObservableCollection<Note> AllNotes { get; set; }
         public ObservableCollection<string> SearchTags { get; set; } = [];
 
         // todo: need to sanitize the tags
@@ -50,8 +68,30 @@ namespace NotesApp.ViewModels
             set => SetField(ref _tag, value);
         }
 
-        public RelayCommand AddSearchTagCommand { get; set; }
-        public RelayCommand<object> RemoveSearchTagCommand { get; set; }
+        private string _searchQuery = string.Empty;
+        public string SearchQuery
+        {
+            get => _searchQuery;
+            set
+            {
+                SetField(ref _searchQuery, value);
+                _searchQueryDelayTimer.Restart();
+            }
+        }
+
+        private IEnumerable<Note> _filteredNotes = [];
+        public IEnumerable<Note> FilteredNotes
+        {
+            get => _filteredNotes;
+            set => SetField(ref _filteredNotes, value);
+        }
+
+        private Note _selectedNote;
+        public Note SelectedNote
+        {
+            get => _selectedNote;
+            set => SetField(ref _selectedNote, value);
+        }
 
         private void AddSearchTag()
         {
@@ -70,43 +110,9 @@ namespace NotesApp.ViewModels
             SearchTags.Remove(tag);
         }
 
-        private string _searchQuery = string.Empty;
-        public string SearchQuery
-        {
-            get => _searchQuery;
-            set
-            {
-                SetField(ref _searchQuery, value);
-                _searchQueryDelayTimer.Restart();
-            }
-        }
-
-        private ObservableCollection<Note> AllNotes { get; set; }
-
-        private IEnumerable<Note> _filteredNotes = [];
-        public IEnumerable<Note> FilteredNotes
-        {
-            get => _filteredNotes;
-            set => SetField(ref _filteredNotes, value);
-        }
-
-        public Note SelectedNote { get; set; }
-
-        public RelayCommand SearchNotesCommand { get; set; }
-        public RelayCommand CreateNoteCommand { get; set; }
-        public RelayCommand DeleteNoteCommand { get; set; }
-        public RelayCommand OpenSettingsWindowCommand { get; set; }
-
         private void OnTimerElapsed(object? sender, ElapsedEventArgs e)
         {
             SearchNotes();
-        }
-
-        public enum Keyword
-        {
-            Tags,
-            Content,
-            File
         }
 
         private void FilterNotes()
@@ -216,9 +222,8 @@ namespace NotesApp.ViewModels
         {
             if (SelectedNote == null)
                 return;
+
             var note = SelectedNote;
-            //if (parameter is not Note note)
-            //    return;
 
             // todo: ask the user if they want to delete the note before deleting it :)
 
@@ -226,6 +231,14 @@ namespace NotesApp.ViewModels
             NoteManager.DeleteNote(note);
 
             SearchNotes();
+        }
+
+        private void SaveNoteChanges()
+        {
+            if (SelectedNote == null)
+                return;
+
+            NoteManager.SaveNote(SelectedNote);
         }
 
         private void OpenSettingsWindow()
