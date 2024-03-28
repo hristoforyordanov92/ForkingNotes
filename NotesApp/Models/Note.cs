@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using NotesApp.Managers;
 using Core.MVVM;
+using System.Collections.ObjectModel;
 
 namespace NotesApp.Models
 {
@@ -51,11 +52,11 @@ namespace NotesApp.Models
 
         [JsonProperty(nameof(Tags))]
         // todo: we might need to make tags a class. then maybe have a graph of tags.
-        private List<string> _tags = [];
+        private ObservableCollection<string> _tags = [];
         /// <summary>
         /// Collection of tags which are used to mark the note with.
         /// </summary>
-        public List<string> Tags
+        public ObservableCollection<string> Tags
         {
             get => _tags;
             set => SetField(ref _tags, value);

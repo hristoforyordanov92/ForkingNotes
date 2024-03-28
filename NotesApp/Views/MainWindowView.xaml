@@ -9,6 +9,8 @@
         Title="Forking Notes"
         Width="800"
         Height="800"
+        MinWidth="500"
+        MinHeight="500"
         d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
         SizeChanged="OnMainWindowSizeChanged"
         StateChanged="OnMainWindowStateChanged"
@@ -54,6 +56,7 @@
                         Style="{StaticResource MaterialDesignPaperButton}"
                         ToolTip="Create Note" />
 
+                <!--todo: make this button enabled/disabled based on the dirty status of the note(s)-->
                 <Button Width="32"
                         Height="32"
                         Padding="0"
@@ -65,7 +68,12 @@
                                                           Size=24}"
                         DockPanel.Dock="Left"
                         Style="{StaticResource MaterialDesignPaperButton}"
-                        ToolTip="Save Note Changes" />
+                        ToolTip="Save Note Changes">
+                    <!--todo: this doesn't really work in some cases. maybe the event is consumed by some control-->
+                    <Button.InputBindings>
+                        <KeyBinding Key="S" Modifiers="Ctrl" />
+                    </Button.InputBindings>
+                </Button>
 
                 <Button Width="32"
                         Height="32"
@@ -107,21 +115,6 @@
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Name}" />
-                            <!--<StackPanel Orientation="Vertical">
-                                <ItemsControl ItemsSource="{Binding Tags}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <StackPanel Orientation="Horizontal" />
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Margin="0,0,2,0" Text="{Binding}" />
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-
-                            </StackPanel>-->
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
@@ -140,13 +133,16 @@
         <Grid Grid.Row="1"
               Grid.Column="2"
               Margin="0,0,10,10">
+            <!--todo: maybe make this into its own control-->
             <materialDesign:Card>
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
+                    <!--Note Name-->
                     <StackPanel Grid.Row="0"
                                 Margin="10"
                                 HorizontalAlignment="Center"
@@ -165,8 +161,57 @@
                                 Style="{StaticResource MaterialDesignOutlinedButton}" />
                     </StackPanel>
 
-                    <TextBox Grid.Row="1"
-                             Margin="20"
+                    <!--Note Tags-->
+                    <Grid Grid.Row="1" Margin="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox Grid.Column="0"
+                                 Width="80"
+                                 Margin="0,0,10,0"
+                                 VerticalAlignment="Top"
+                                 materialDesign:HintAssist.Background="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=materialDesign:Card}}"
+                                 materialDesign:HintAssist.Hint="Tag">
+                            <TextBox.Text>
+                                <Binding Path="NewNoteTag" UpdateSourceTrigger="PropertyChanged">
+                                    <Binding.ValidationRules>
+                                        <validation:TagValidation />
+                                    </Binding.ValidationRules>
+                                </Binding>
+                            </TextBox.Text>
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Return" Command="{Binding AddTagCommand}" />
+                            </TextBox.InputBindings>
+                        </TextBox>
+
+                        <ItemsControl Grid.Column="1" ItemsSource="{Binding SelectedNote.Tags}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <!--todo: make this into its own control-->
+                                    <materialDesign:Chip Content="{Binding}"
+                                                         DeleteCommand="{Binding DataContext.RemoveTagCommand, RelativeSource={RelativeSource AncestorType=ItemsControl, Mode=FindAncestor}}"
+                                                         DeleteCommandParameter="{Binding}"
+                                                         IsDeletable="True">
+                                        <materialDesign:Chip.InputBindings>
+                                            <MouseBinding Command="{Binding DataContext.RemoveTagCommand, RelativeSource={RelativeSource AncestorType=ItemsControl, Mode=FindAncestor}}"
+                                                          CommandParameter="{Binding}"
+                                                          MouseAction="MiddleClick" />
+                                        </materialDesign:Chip.InputBindings>
+                                    </materialDesign:Chip>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+
+                    <TextBox Grid.Row="2"
+                             Margin="10"
                              materialDesign:HintAssist.Background="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=materialDesign:Card}}"
                              materialDesign:HintAssist.Hint="Contents"
                              AcceptsReturn="True"

@@ -41,6 +41,8 @@ namespace NotesApp.ViewModels
             OpenSettingsWindowCommand = new RelayCommand(OpenSettingsWindow);
             AddSearchTagCommand = new RelayCommand(AddSearchTag);
             RemoveSearchTagCommand = new RelayCommand<object>(RemoveSearchTag);
+            AddTagCommand = new RelayCommand(AddTag);
+            RemoveTagCommand = new RelayCommand<object>(RemoveTag);
 
             AllNotes = new ObservableCollection<Note>(NoteManager.AllNotes);
             FilteredNotes = AllNotes;
@@ -56,6 +58,8 @@ namespace NotesApp.ViewModels
         public RelayCommand DeleteNoteCommand { get; set; }
         public RelayCommand SaveNoteChangesCommand { get; set; }
         public RelayCommand OpenSettingsWindowCommand { get; set; }
+        public RelayCommand AddTagCommand { get; set; }
+        public RelayCommand<object> RemoveTagCommand { get; set; }
 
         private ObservableCollection<Note> AllNotes { get; set; }
         public ObservableCollection<string> SearchTags { get; set; } = [];
@@ -249,6 +253,30 @@ namespace NotesApp.ViewModels
             };
 
             window.ShowDialog();
+        }
+
+        private string _newNoteTag;
+        public string NewNoteTag
+        {
+            get => _newNoteTag;
+            set => SetField(ref _newNoteTag, value);
+        }
+
+        private void AddTag()
+        {
+            if (SelectedNote == null)
+                return;
+
+            SelectedNote.Tags.Add(NewNoteTag);
+            NewNoteTag = string.Empty;
+        }
+
+        private void RemoveTag(object? parameter)
+        {
+            if (SelectedNote == null || parameter is not string tag)
+                return;
+
+            SelectedNote.Tags.Remove(tag);
         }
     }
 }
