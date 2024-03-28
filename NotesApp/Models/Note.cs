@@ -2,6 +2,8 @@
 using NotesApp.Managers;
 using Core.MVVM;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Runtime.Serialization;
 
 namespace NotesApp.Models
 {
@@ -27,6 +29,17 @@ namespace NotesApp.Models
         {
             FileName = fileName;
             Name = fileName;
+            SetupNote();
+        }
+
+        private bool _isDirty = false;
+        /// <summary>
+        /// Indicator if the note has undergone changes without being saved.
+        /// </summary>
+        public bool IsDirty
+        {
+            get => _isDirty;
+            set => SetField(ref _isDirty, value);
         }
 
         private string _fileName = string.Empty;
@@ -47,7 +60,11 @@ namespace NotesApp.Models
         public string Name
         {
             get => _name;
-            set => SetField(ref _name, value);
+            set
+            {
+                if (SetField(ref _name, value))
+                    IsDirty = true;
+            }
         }
 
         [JsonProperty(nameof(Tags))]
@@ -59,7 +76,7 @@ namespace NotesApp.Models
         public ObservableCollection<string> Tags
         {
             get => _tags;
-            set => SetField(ref _tags, value);
+            private set => SetField(ref _tags, value);
         }
 
         private string _content = string.Empty;
@@ -70,7 +87,21 @@ namespace NotesApp.Models
         public string Content
         {
             get => _content;
-            set => SetField(ref _content, value);
+            set
+            {
+                if (SetField(ref _content, value))
+                    IsDirty = true;
+            }
+        }
+
+        private void SetupNote()
+        {
+            Tags.CollectionChanged += OnTagsChanged;
+        }
+
+        private void OnTagsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            IsDirty = true;
         }
 
         // todo: call this when a note has been changed.
@@ -80,9 +111,17 @@ namespace NotesApp.Models
          * maybe keep a few versions of the auto-saved files, but this could go out-of-hand real fast and it has to be done rarely. maybe on note change only.
          * we MUST have a undo/redo stack. maybe a simple back and forth would be enough, maybe would need a more complicated one with a visualization too. only stored in memory tho :/
         */
-        private void SaveNote()
+        public void Save()
         {
             NoteManager.SaveNote(this);
+            IsDirty = false;
+        }
+
+        [OnDeserialized]
+        private void Do(StreamingContext streamingContext)
+        {
+            SetupNote();
+            IsDirty = false;
         }
     }
 }

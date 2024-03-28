@@ -65,11 +65,11 @@ namespace NotesApp.ViewModels
         public ObservableCollection<string> SearchTags { get; set; } = [];
 
         // todo: need to sanitize the tags
-        private string _tag = string.Empty;
-        public string Tag
+        private string _searchTag = string.Empty;
+        public string SearchTag
         {
-            get => _tag;
-            set => SetField(ref _tag, value);
+            get => _searchTag;
+            set => SetField(ref _searchTag, value);
         }
 
         private string _searchQuery = string.Empty;
@@ -99,11 +99,11 @@ namespace NotesApp.ViewModels
 
         private void AddSearchTag()
         {
-            if (string.IsNullOrWhiteSpace(Tag))
+            if (string.IsNullOrWhiteSpace(SearchTag))
                 return;
 
-            SearchTags.Add(Tag);
-            Tag = string.Empty;
+            SearchTags.Add(SearchTag);
+            SearchTag = string.Empty;
         }
 
         private void RemoveSearchTag(object? parameter)
@@ -215,7 +215,7 @@ namespace NotesApp.ViewModels
             if (note == null)
                 return;
 
-            NoteManager.SaveNote(note);
+            note.Save();
 
             AllNotes.Add(note);
 
@@ -239,10 +239,10 @@ namespace NotesApp.ViewModels
 
         private void SaveNoteChanges()
         {
-            if (SelectedNote == null)
+            if (SelectedNote == null || !SelectedNote.IsDirty)
                 return;
 
-            NoteManager.SaveNote(SelectedNote);
+            SelectedNote.Save();
         }
 
         private void OpenSettingsWindow()

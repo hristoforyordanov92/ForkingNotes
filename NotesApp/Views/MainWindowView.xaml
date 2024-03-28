@@ -28,6 +28,7 @@
     <Grid Name="MainGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -56,7 +57,6 @@
                         Style="{StaticResource MaterialDesignPaperButton}"
                         ToolTip="Create Note" />
 
-                <!--todo: make this button enabled/disabled based on the dirty status of the note(s)-->
                 <Button Width="32"
                         Height="32"
                         Padding="0"
@@ -67,9 +67,10 @@
                         Content="{materialDesign:PackIcon Kind=ContentSave,
                                                           Size=24}"
                         DockPanel.Dock="Left"
+                        IsEnabled="{Binding SelectedNote.IsDirty}"
                         Style="{StaticResource MaterialDesignPaperButton}"
                         ToolTip="Save Note Changes">
-                    <!--todo: this doesn't really work in some cases. maybe the event is consumed by some control-->
+                    <!--todo: the key binding doesn't work when we don't have a focus on the button? not sure exactly, but it's 100% about focus-->
                     <Button.InputBindings>
                         <KeyBinding Key="S" Modifiers="Ctrl" />
                     </Button.InputBindings>
@@ -90,8 +91,69 @@
             </DockPanel>
         </materialDesign:ColorZone>
 
+        <!--Search bar-->
+        <materialDesign:Card Grid.Row="1"
+                             Grid.ColumnSpan="3"
+                             Margin="10,0,10,10">
+            <Grid Margin="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <materialDesign:PackIcon Width="32"
+                                         Height="32"
+                                         Margin="0,0,6,0"
+                                         VerticalAlignment="Center"
+                                         Kind="Magnify" />
+
+                <!--todo: We're repeating a lot of XAML code here. See how to make it into a control, that is reusable-->
+                <TextBox Grid.Column="1"
+                         Width="80"
+                         Margin="0,0,10,0"
+                         VerticalAlignment="Top"
+                         materialDesign:HintAssist.Background="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=materialDesign:Card}}"
+                         materialDesign:HintAssist.Hint="Tag">
+                    <TextBox.Text>
+                        <Binding Path="SearchTag" UpdateSourceTrigger="PropertyChanged">
+                            <Binding.ValidationRules>
+                                <validation:TagValidation />
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                    <TextBox.InputBindings>
+                        <KeyBinding Key="Return" Command="{Binding AddSearchTagCommand}" />
+                    </TextBox.InputBindings>
+                </TextBox>
+
+                <ItemsControl Grid.Column="2" ItemsSource="{Binding SearchTags}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <!--todo: make this into its own control-->
+                            <materialDesign:Chip Content="{Binding}"
+                                                 DeleteCommand="{Binding DataContext.RemoveSearchTagCommand, RelativeSource={RelativeSource AncestorType=ItemsControl, Mode=FindAncestor}}"
+                                                 DeleteCommandParameter="{Binding}"
+                                                 IsDeletable="True">
+                                <materialDesign:Chip.InputBindings>
+                                    <MouseBinding Command="{Binding DataContext.RemoveSearchTagCommand, RelativeSource={RelativeSource AncestorType=ItemsControl, Mode=FindAncestor}}"
+                                                  CommandParameter="{Binding}"
+                                                  MouseAction="MiddleClick" />
+                                </materialDesign:Chip.InputBindings>
+                            </materialDesign:Chip>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+        </materialDesign:Card>
+
         <!--Left Grid Column-->
-        <Grid Grid.Row="1"
+        <Grid Grid.Row="2"
               Grid.Column="0"
               Margin="10,0,0,10">
             <materialDesign:Card>
@@ -121,7 +183,7 @@
             </materialDesign:Card>
         </Grid>
 
-        <GridSplitter Grid.Row="1"
+        <GridSplitter Grid.Row="2"
                       Grid.Column="1"
                       Width="6"
                       HorizontalAlignment="Center"
@@ -130,7 +192,7 @@
                       DragCompleted="GridSplitter_DragCompleted" />
 
         <!--Right Grid Column-->
-        <Grid Grid.Row="1"
+        <Grid Grid.Row="2"
               Grid.Column="2"
               Margin="0,0,10,10">
             <!--todo: maybe make this into its own control-->
@@ -221,94 +283,5 @@
                 </Grid>
             </materialDesign:Card>
         </Grid>
-
-        <!--Creating new notes-->
-        <!--<Grid Grid.Row="2" Margin="0,0,0,20">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="auto" />
-            </Grid.ColumnDefinitions>
-
-            <Button Grid.Column="0"
-                    Command="{Binding CreateNoteCommand}"
-                    ToolTip="Create Note">
-                <materialDesign:PackIcon Kind="FileDocumentPlusOutline" />
-            </Button>
-            <Button Grid.Column="2"
-                    Command="{Binding OpenSettingsWindowCommand}"
-                    ToolTip="Settings">
-                <materialDesign:PackIcon Kind="Cog" />
-            </Button>
-        </Grid>-->
-
-        <!--Searching for a note-->
-        <!--<Grid Grid.Row="2" Margin="0,0,0,20">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="150" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
-            <TextBox Grid.Column="0"
-                     Margin="0,0,10,0"
-                     VerticalAlignment="Top"
-                     materialDesign:HintAssist.Hint="Tag">
-                <TextBox.Text>
-                    <Binding Path="Tag" UpdateSourceTrigger="PropertyChanged">
-                        <Binding.ValidationRules>
-                            <validation:TagValidation />
-                        </Binding.ValidationRules>
-                    </Binding>
-                </TextBox.Text>
-                <TextBox.InputBindings>
-                    <KeyBinding Key="Return" Command="{Binding AddSearchTagCommand}" />
-                </TextBox.InputBindings>
-            </TextBox>
-
-            <ItemsControl Grid.Column="3" ItemsSource="{Binding SearchTags}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <materialDesign:Chip Content="{Binding}"
-                                             DeleteCommand="{Binding DataContext.RemoveSearchTagCommand, RelativeSource={RelativeSource AncestorType=ItemsControl, Mode=FindAncestor}}"
-                                             DeleteCommandParameter="{Binding}"
-                                             IsDeletable="True">
-                            <materialDesign:Chip.InputBindings>
-                                <MouseBinding Command="{Binding DataContext.RemoveSearchTagCommand, RelativeSource={RelativeSource AncestorType=ItemsControl, Mode=FindAncestor}}"
-                                              CommandParameter="{Binding}"
-                                              MouseAction="MiddleClick" />
-                            </materialDesign:Chip.InputBindings>
-                        </materialDesign:Chip>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Grid>-->
-
-        <!--All/filtered notes-->
-        <!--<ListView Grid.Row="4" ItemsSource="{Binding FilteredNotes}">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Vertical">
-                        <ItemsControl ItemsSource="{Binding Tags}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Horizontal" />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Margin="0,0,2,0" Text="{Binding}" />
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                        <TextBlock Text="{Binding Content}" />
-                    </StackPanel>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>-->
     </Grid>
 </Window>
