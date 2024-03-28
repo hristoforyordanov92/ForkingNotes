@@ -157,7 +157,7 @@
               Grid.Column="0"
               Margin="10,0,0,10">
             <materialDesign:Card>
-                <ListView ItemsSource="{Binding FilteredNotes, UpdateSourceTrigger=PropertyChanged}"
+                <ListView ItemsSource="{Binding FilteredNotesView, UpdateSourceTrigger=PropertyChanged}"
                           MouseRightButtonDown="OnPreviewMouseRightButtonDown"
                           SelectedItem="{Binding SelectedNote}">
                     <ListView.ContextMenu>
@@ -237,7 +237,7 @@
                                  materialDesign:HintAssist.Background="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=materialDesign:Card}}"
                                  materialDesign:HintAssist.Hint="Tag">
                             <TextBox.Text>
-                                <Binding Path="NewNoteTag" UpdateSourceTrigger="PropertyChanged">
+                                <Binding Path="SelectedNoteNewTag" UpdateSourceTrigger="PropertyChanged">
                                     <Binding.ValidationRules>
                                         <validation:TagValidation />
                                     </Binding.ValidationRules>

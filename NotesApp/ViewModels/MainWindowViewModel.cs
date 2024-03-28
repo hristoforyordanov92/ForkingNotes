@@ -1,40 +1,34 @@
-﻿using System.Timers;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Timers;
+using System.Windows;
+using System.Windows.Data;
+using Core.Extensions;
+using Core.MVVM;
 using NotesApp.Managers;
 using NotesApp.Models;
-using Core.MVVM;
-using Timer = System.Timers.Timer;
 using NotesApp.Views;
-using System.Collections.ObjectModel;
-using System.Windows;
-using Core.Extensions;
+using Timer = System.Timers.Timer;
 
 namespace NotesApp.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        // todo: maybe remove
-        private enum Keyword
-        {
-            Tags,
-            Content,
-            File
-        }
-
         /// <summary>
         /// Timer used for delaying each search query to avoid constant filtering and searching
         /// while the user still haven't finished typing their search query.
         /// </summary>
-        private readonly Timer _searchQueryDelayTimer = new(300d);
+        private readonly Timer _searchQueryDelayTimer = new(TimeSpan.FromMilliseconds(300));
 
+        /// <summary>
+        /// The current window. Used to set as an owner of other windows spawned from within this class.
+        /// </summary>
         private readonly Window _window;
 
         public MainWindowViewModel(Window window)
         {
             _window = window;
 
-            SearchTags.CollectionChanged += (sender, e) => FilterNotes();
-
-            SearchNotesCommand = new RelayCommand(SearchNotes);
             CreateNoteCommand = new RelayCommand(CreateNote);
             DeleteNoteCommand = new RelayCommand(DeleteNote);
             SaveNoteChangesCommand = new RelayCommand(SaveNoteChanges);
@@ -45,7 +39,10 @@ namespace NotesApp.ViewModels
             RemoveTagCommand = new RelayCommand<object>(RemoveTag);
 
             AllNotes = new ObservableCollection<Note>(NoteManager.AllNotes);
-            FilteredNotes = AllNotes;
+            FilteredNotesView = CollectionViewSource.GetDefaultView(AllNotes);
+            FilteredNotesView.Filter = ShouldShowNotePredicate;
+
+            SearchTags.CollectionChanged += (sender, e) => FilteredNotesView.Refresh();
 
             _searchQueryDelayTimer.AutoReset = false;
             _searchQueryDelayTimer.Elapsed += OnTimerElapsed;
@@ -53,7 +50,6 @@ namespace NotesApp.ViewModels
 
         public RelayCommand AddSearchTagCommand { get; set; }
         public RelayCommand<object> RemoveSearchTagCommand { get; set; }
-        public RelayCommand SearchNotesCommand { get; set; }
         public RelayCommand CreateNoteCommand { get; set; }
         public RelayCommand DeleteNoteCommand { get; set; }
         public RelayCommand SaveNoteChangesCommand { get; set; }
@@ -61,8 +57,19 @@ namespace NotesApp.ViewModels
         public RelayCommand AddTagCommand { get; set; }
         public RelayCommand<object> RemoveTagCommand { get; set; }
 
-        private ObservableCollection<Note> AllNotes { get; set; }
+        // todo: maybe save these so that search tags could persist between app restarts
         public ObservableCollection<string> SearchTags { get; set; } = [];
+
+        private ObservableCollection<Note> AllNotes { get; set; }
+
+        public ICollectionView FilteredNotesView { get; set; }
+
+        private string _selectedNoteNewTag = string.Empty;
+        public string SelectedNoteNewTag
+        {
+            get => _selectedNoteNewTag;
+            set => SetField(ref _selectedNoteNewTag, value);
+        }
 
         // todo: need to sanitize the tags
         private string _searchTag = string.Empty;
@@ -83,15 +90,8 @@ namespace NotesApp.ViewModels
             }
         }
 
-        private IEnumerable<Note> _filteredNotes = [];
-        public IEnumerable<Note> FilteredNotes
-        {
-            get => _filteredNotes;
-            set => SetField(ref _filteredNotes, value);
-        }
-
-        private Note _selectedNote;
-        public Note SelectedNote
+        private Note? _selectedNote;
+        public Note? SelectedNote
         {
             get => _selectedNote;
             set => SetField(ref _selectedNote, value);
@@ -116,92 +116,11 @@ namespace NotesApp.ViewModels
 
         private void OnTimerElapsed(object? sender, ElapsedEventArgs e)
         {
-            SearchNotes();
-        }
-
-        private void FilterNotes()
-        {
-            if (SearchTags.Count == 0)
-            {
-                FilteredNotes = AllNotes;
-                return;
-            }
-
-            FilteredNotes = AllNotes
-                .Where(note =>
-                {
-                    foreach (var tag in SearchTags)
-                    {
-                        if (note.Tags.Contains(tag))
-                            return true;
-                    }
-
-                    return false;
-                });
-        }
-
-        private void SearchNotes()
-        {
-            // todo: need to implement the parsing of the SearchQuery
-            //var matches = Regex.Matches(SearchQuery, @"(?<KEYWORD>[a-z]+:)", RegexOptions.IgnoreCase);
-
-            //Dictionary<Keyword, int> kvp = [];
-            //foreach (Match match in matches)
-            //{
-            //    string keywordName = match.Value.ToString()[..^1];
-            //    keywordName = $"{keywordName[..1].ToUpper()}{keywordName[1..].ToLower()}";
-            //    if (!Enum.TryParse(keywordName, out Keyword keyword))
-            //        continue;
-
-            //    //Keyword keyword = (Keyword)keywordObject;
-            //    kvp.Add(keyword, match.Index);
-            //}
-
-
-
-            //List<(Keyword keyword, int index)> keywordIndexes = [];
-            //foreach (var keyword in Enum.GetValues<Keyword>())
-            //{
-            //    var index = SearchQuery.IndexOf($"{keyword}:", StringComparison.OrdinalIgnoreCase);
-            //    if (index == -1)
-            //        continue;
-
-            //    keywordIndexes.Add((keyword, index));
-            //}
-            //keywordIndexes = [.. keywordIndexes.OrderBy(tuple => tuple.index)];
-
-            //foreach (var keyword in keywordIndexes)
-            //{
-
-            //}
-
-            //var tags = Regex.Match(SearchQuery, @"tag:(?<TAGS>([a-zA-Z0-9]+))");
-
-            // todo: this is too easy and only supports tags. replace with a proper parsing of the SearchQuery
-            var tags = SearchQuery.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-            if (tags.Length == 0)
-            {
-                FilteredNotes = AllNotes;
-                return;
-            }
-
-            FilteredNotes = AllNotes
-                .Where(note =>
-                {
-                    foreach (var tag in tags)
-                    {
-                        if (note.Tags.Contains(tag))
-                            return true;
-                    }
-
-                    return false;
-                });
+            FilteredNotesView.Refresh();
         }
 
         private void CreateNote()
         {
-            // the logic for the create note command
             var window = new CreateNoteView
             {
                 Owner = _window
@@ -219,7 +138,7 @@ namespace NotesApp.ViewModels
 
             AllNotes.Add(note);
 
-            SearchNotes();
+            FilteredNotesView.Refresh();
         }
 
         private void DeleteNote()
@@ -234,7 +153,7 @@ namespace NotesApp.ViewModels
             AllNotes.Remove(note);
             NoteManager.DeleteNote(note);
 
-            SearchNotes();
+            FilteredNotesView.Refresh();
         }
 
         private void SaveNoteChanges()
@@ -255,20 +174,13 @@ namespace NotesApp.ViewModels
             window.ShowDialog();
         }
 
-        private string _newNoteTag;
-        public string NewNoteTag
-        {
-            get => _newNoteTag;
-            set => SetField(ref _newNoteTag, value);
-        }
-
         private void AddTag()
         {
             if (SelectedNote == null)
                 return;
 
-            SelectedNote.Tags.Add(NewNoteTag);
-            NewNoteTag = string.Empty;
+            SelectedNote.Tags.Add(SelectedNoteNewTag);
+            SelectedNoteNewTag = string.Empty;
         }
 
         private void RemoveTag(object? parameter)
@@ -277,6 +189,33 @@ namespace NotesApp.ViewModels
                 return;
 
             SelectedNote.Tags.Remove(tag);
+        }
+
+        private bool ShouldShowNotePredicate(object obj)
+        {
+            if (obj is not Note note)
+                return false;
+
+            if (string.IsNullOrEmpty(SearchQuery) && SearchTags.Count == 0)
+                return true;
+
+            if (SearchTags.Count > 0)
+            {
+                // todo: improve the performance of this whenever the tags become classes and we have a graph
+                foreach (var tag in SearchTags)
+                {
+                    if (note.Tags.Contains(tag))
+                        return true;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(SearchQuery))
+            {
+                if (note.Content.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+
+            return false;
         }
     }
 }
