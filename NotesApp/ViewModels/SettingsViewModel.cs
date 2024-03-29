@@ -3,6 +3,7 @@ using Core.MVVM;
 using MaterialDesignThemes.Wpf;
 using NotesApp.Configuration;
 using NotesApp.Managers;
+using NotesApp.Utils;
 
 namespace NotesApp.ViewModels
 {
@@ -15,7 +16,11 @@ namespace NotesApp.ViewModels
         {
             _window = window;
             _currentSettings = SettingsManager.CurrentSettings;
+
+            OpenSaveFolderCommand = new RelayCommand(OpenSaveFolder);
         }
+
+        public RelayCommand OpenSaveFolderCommand { get; set; }
 
         public List<BaseTheme> ThemesCollection { get; set; } =
             [BaseTheme.Inherit, BaseTheme.Light, BaseTheme.Dark];
@@ -27,6 +32,11 @@ namespace NotesApp.ViewModels
         {
             get => _currentSettings.Theme;
             set => _currentSettings.Theme = value;
+        }
+
+        private void OpenSaveFolder()
+        {
+            PathHelper.OpenFolder(PathHelper.ToolSaveFolderPath);
         }
     }
 }

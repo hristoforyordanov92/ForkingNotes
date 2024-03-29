@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Timers;
 using System.Windows;
 using System.Windows.Data;
@@ -56,6 +57,11 @@ namespace NotesApp.ViewModels
         public RelayCommand OpenSettingsWindowCommand { get; set; }
         public RelayCommand AddTagCommand { get; set; }
         public RelayCommand<object> RemoveTagCommand { get; set; }
+
+        /// <summary>
+        /// Indicates if the application is currently ran in debug mode.
+        /// </summary>
+        public bool IsDebugModeEnabled { get; set; } = SettingsManager.CurrentSettings.IsDebugModeEnabled;
 
         // todo: maybe save these so that search tags could persist between app restarts
         public ObservableCollection<string> SearchTags { get; set; } = [];

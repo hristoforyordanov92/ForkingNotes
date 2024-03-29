@@ -1,4 +1,5 @@
-﻿using MaterialDesignThemes.Wpf;
+﻿using System.Diagnostics;
+using MaterialDesignThemes.Wpf;
 using Newtonsoft.Json;
 using NotesApp.Managers;
 
@@ -8,6 +9,12 @@ namespace NotesApp.Configuration
     public class Settings
     {
         public event Action? SettingsChanged;
+
+        #region Instance-Only Settings
+
+        public bool IsDebugModeEnabled { get; } = Debugger.IsAttached;
+
+        #endregion
 
         #region Theme Settings
 

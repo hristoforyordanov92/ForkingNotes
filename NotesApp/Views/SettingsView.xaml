@@ -6,7 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewmodels="clr-namespace:NotesApp.ViewModels"
         Title="Settings"
-        Width="400"
+        Width="500"
         Height="450"
         d:DataContext="{d:DesignInstance Type=viewmodels:SettingsViewModel}"
         Style="{StaticResource MaterialDesignWindow}"
@@ -15,12 +15,21 @@
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
 
-        <ComboBox Padding="5,11,5,5"
+        <ComboBox Grid.Row="0"
+                  Margin="0,0,0,10"
+                  Padding="5,11,5,5"
                   materialDesign:HintAssist.Hint="Color theme"
                   ItemsSource="{Binding ThemesCollection}"
                   SelectedItem="{Binding SelectedTheme}"
                   Style="{StaticResource MaterialDesignOutlinedComboBox}" />
+
+        <Button Grid.Row="1"
+                Margin="0,0,0,10"
+                Command="{Binding OpenSaveFolderCommand}"
+                Content="Open Application's Save Folder"
+                Style="{StaticResource MaterialDesignPaperButton}" />
     </Grid>
 </Window>

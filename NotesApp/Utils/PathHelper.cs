@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NotesApp.Models;
 
 namespace NotesApp.Utils
@@ -28,14 +24,14 @@ namespace NotesApp.Utils
             foreach (var @char in Path.GetInvalidFileNameChars())
                 _invalidCharacters.Add(@char);
 
-            Directory.CreateDirectory(ToolCachePath);
+            Directory.CreateDirectory(ToolSaveFolderPath);
             Directory.CreateDirectory(NotesPath);
         }
 
         /// <summary>
         /// The main folder of this tool. All of the files will be saved in here.
         /// </summary>
-        public static string ToolCachePath =>
+        public static string ToolSaveFolderPath =>
             Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 "ForkingNotes");
@@ -44,13 +40,13 @@ namespace NotesApp.Utils
         /// The path where all notes will be saved.
         /// </summary>
         public static string NotesPath =>
-            Path.Combine(ToolCachePath, "Notes");
+            Path.Combine(ToolSaveFolderPath, "Notes");
 
         /// <summary>
         /// The file path of the settings file of this application.
         /// </summary>
         public static string SettingsFilePath =>
-            Path.Combine(ToolCachePath, "Settings.json");
+            Path.Combine(ToolSaveFolderPath, "Settings.json");
 
         /// <summary>
         /// Gets the file path of a note.
@@ -92,5 +88,10 @@ namespace NotesApp.Utils
         //{
 
         //}
+
+        public static void OpenFolder(string folder)
+        {
+            Process.Start("explorer", folder);
+        }
     }
 }

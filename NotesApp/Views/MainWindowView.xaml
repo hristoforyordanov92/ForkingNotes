@@ -15,7 +15,7 @@
         SizeChanged="OnMainWindowSizeChanged"
         StateChanged="OnMainWindowStateChanged"
         Style="{StaticResource MaterialDesignWindow}"
-        Topmost="True"
+        Topmost="{Binding IsDebugModeEnabled}"
         WindowStartupLocation="CenterScreen"
         mc:Ignorable="d">
 
