@@ -176,18 +176,22 @@
                     </ListView.ContextMenu>
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <!--todo: reworking this would be ideal. I don't like having two separate ui elements which are hidden or shown...-->
-
-                                <!--Normally shown-->
-                                <TextBlock Text="{Binding Name}" Visibility="{Binding IsDirty, Converter={StaticResource InverseBoolToVisConverter}}" />
-
-                                <!--Only shown when file is dirty-->
-                                <TextBlock FontStyle="Italic"
-                                           FontWeight="DemiBold"
-                                           Text="{Binding Name, StringFormat={}{0}*}"
-                                           Visibility="{Binding IsDirty, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                            </StackPanel>
+                            <TextBlock>
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsDirty}" Value="True">
+                                                <Setter Property="FontStyle" Value="Italic" />
+                                                <Setter Property="FontWeight" Value="Bold" />
+                                                <Setter Property="Text" Value="{Binding Name, StringFormat={}{0}*}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsDirty}" Value="False">
+                                                <Setter Property="Text" Value="{Binding Name}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
