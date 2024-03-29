@@ -176,7 +176,18 @@
                     </ListView.ContextMenu>
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Name}" />
+                            <StackPanel Orientation="Horizontal">
+                                <!--todo: reworking this would be ideal. I don't like having two separate ui elements which are hidden or shown...-->
+
+                                <!--Normally shown-->
+                                <TextBlock Text="{Binding Name}" Visibility="{Binding IsDirty, Converter={StaticResource InverseBoolToVisConverter}}" />
+
+                                <!--Only shown when file is dirty-->
+                                <TextBlock FontStyle="Italic"
+                                           FontWeight="DemiBold"
+                                           Text="{Binding Name, StringFormat={}{0}*}"
+                                           Visibility="{Binding IsDirty, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
