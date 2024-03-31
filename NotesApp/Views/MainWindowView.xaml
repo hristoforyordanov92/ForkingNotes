@@ -224,9 +224,22 @@
                                 Margin="10"
                                 HorizontalAlignment="Center"
                                 Orientation="Horizontal">
-                        <TextBlock Margin="0,0,8,0"
-                                   FontSize="40"
-                                   Text="{Binding SelectedNote.Name}" />
+                        <TextBlock Margin="0,0,8,0" FontSize="40">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedNote.IsDirty}" Value="True">
+                                            <Setter Property="FontStyle" Value="Italic" />
+                                            <Setter Property="FontWeight" Value="Bold" />
+                                            <Setter Property="Text" Value="{Binding SelectedNote.Name, StringFormat={}{0}*}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding SelectedNote.IsDirty}" Value="False">
+                                            <Setter Property="Text" Value="{Binding SelectedNote.Name}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                         <Button Width="32"
                                 Height="32"
                                 Padding="0"
@@ -235,7 +248,8 @@
                                 BorderThickness="0"
                                 Content="{materialDesign:PackIcon Kind=Pencil,
                                                                   Size=24}"
-                                Style="{StaticResource MaterialDesignOutlinedButton}" />
+                                Style="{StaticResource MaterialDesignOutlinedButton}"
+                                Command="{Binding RenameSelectedNoteCommand}"/>
                     </StackPanel>
 
                     <!--Note Tags-->
@@ -292,7 +306,7 @@
                              materialDesign:HintAssist.Background="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=materialDesign:Card}}"
                              materialDesign:HintAssist.Hint="Contents"
                              AcceptsReturn="True"
-                             Text="{Binding SelectedNote.Content}"
+                             Text="{Binding SelectedNote.Content, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              TextWrapping="Wrap"
                              VerticalScrollBarVisibility="Auto" />
                 </Grid>

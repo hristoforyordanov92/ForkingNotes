@@ -10,10 +10,8 @@ namespace NotesApp.ViewModels
 
         public CreateNoteViewModel()
         {
-            CreateNoteCommand = new RelayCommand(CreateNote, () => IsValid(nameof(FileName)));
+            CreateNoteCommand = new RelayCommand(CreateNote, () => IsViewModelValid);
             CloseWindowCommand = new RelayCommand(CloseWindow);
-
-            RegisterPropertiesDependency(CreateNoteCommand, nameof(FileName));
         }
 
         private string? _fileName = string.Empty;

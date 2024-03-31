@@ -9,15 +9,21 @@ namespace Core.MVVM
     {
         private readonly Dictionary<string, List<string?>> _errors = [];
 
-        /// <summary>
-        /// Dictionary containing property names and commands, which are dependent on the properties' validations.
-        /// </summary>
-        private readonly Dictionary<string, IExtendedCommand> _propertyDependents = [];
-
-        public bool HasErrors => _errors.Count > 0;
-
         public event PropertyChangedEventHandler? PropertyChanged;
         public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
+
+        public bool HasErrors => _errors.Values.Count > 0;
+
+        private bool _isViewModelValid = false;
+        /// <summary>
+        /// Indicates if the view model has had its validations run and pass.
+        /// Always starts as 'false' until at least a single validation has passed.
+        /// </summary>
+        public bool IsViewModelValid
+        {
+            get => _isViewModelValid && !HasErrors;
+            private set => SetField(ref _isViewModelValid, value);
+        }
 
         /// <summary>
         /// Sets a backing field. Raises PropertyChanged event when successfully set.
@@ -77,14 +83,9 @@ namespace Core.MVVM
             return _errors.TryGetValue(propertyName, out List<string?>? errors) && errors.Count == 0;
         }
 
-        protected bool HasError(string propertyName)
-        {
-            return !IsValid(propertyName);
-        }
-
         public void Validate(object? propertyValue, [CallerMemberName] string propertyName = "")
         {
-            List<ValidationResult> results = [];
+            List<ValidationResult> validationResults = [];
 
             Validator.TryValidateProperty(
                 propertyValue,
@@ -92,33 +93,22 @@ namespace Core.MVVM
                 {
                     MemberName = propertyName
                 },
-                results);
+                validationResults);
 
-            if (!_errors.ContainsKey(propertyName))
-                _errors.Add(propertyName, []);
-
-            _errors[propertyName].Clear();
-            if (results.Count > 0)
+            if (validationResults.Count == 0)
             {
-                _errors[propertyName].AddRange(results.Select(r => r.ErrorMessage));
+                _errors.Remove(propertyName);
+            }
+            else
+            {
+                List<string?> errors = new(validationResults.Count);
+                errors.AddRange(validationResults.Select(r => r.ErrorMessage));
+                _errors[propertyName] = errors;
             }
 
             ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
-
-            if (_propertyDependents.TryGetValue(propertyName, out IExtendedCommand? command))
-                command.RaiseCanExecuteChanged();
-        }
-
-        /// <summary>
-        /// Register a command as dependent on a collection of properties. Whenever the properties get validated,
-        /// the command's CanExecute function will be automatically executed.
-        /// </summary>
-        /// <param name="command">The command to register as dependent.</param>
-        /// <param name="properties">The properties which will trigger the command's CanExecute reevaluation.</param>
-        protected void RegisterPropertiesDependency(IExtendedCommand command, params string[] properties)
-        {
-            foreach (var property in properties)
-                _propertyDependents.Add(property, command);
+            RaisePropertyChanged(nameof(HasErrors));
+            IsViewModelValid = !HasErrors;
         }
     }
 }

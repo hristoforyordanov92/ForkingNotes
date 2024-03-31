@@ -38,6 +38,7 @@ namespace NotesApp.ViewModels
             RemoveSearchTagCommand = new RelayCommand<object>(RemoveSearchTag);
             AddTagCommand = new RelayCommand(AddTag);
             RemoveTagCommand = new RelayCommand<object>(RemoveTag);
+            RenameSelectedNoteCommand = new RelayCommand(RenameSelectedNote);
 
             AllNotes = new ObservableCollection<Note>(NoteManager.AllNotes);
             FilteredNotesView = CollectionViewSource.GetDefaultView(AllNotes);
@@ -57,6 +58,7 @@ namespace NotesApp.ViewModels
         public RelayCommand OpenSettingsWindowCommand { get; set; }
         public RelayCommand AddTagCommand { get; set; }
         public RelayCommand<object> RemoveTagCommand { get; set; }
+        public RelayCommand RenameSelectedNoteCommand { get; set; }
 
         /// <summary>
         /// Indicates if the application is currently ran in debug mode.
@@ -195,6 +197,11 @@ namespace NotesApp.ViewModels
                 return;
 
             SelectedNote.Tags.Remove(tag);
+        }
+
+        private void RenameSelectedNote()
+        {
+
         }
 
         private bool ShouldShowNotePredicate(object obj)

@@ -94,16 +94,6 @@ namespace NotesApp.Models
             }
         }
 
-        private void SetupNote()
-        {
-            Tags.CollectionChanged += OnTagsChanged;
-        }
-
-        private void OnTagsChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
-            IsDirty = true;
-        }
-
         // todo: call this when a note has been changed.
         // todo: make sure it doesn't overwrite another note that has the same name in case of a note FileName change.
         /* todo: automating this is super dangerous! if you accidentally ctrl+a and backspace the note, you'll lose the note forever!
@@ -117,8 +107,18 @@ namespace NotesApp.Models
             IsDirty = false;
         }
 
+        private void SetupNote()
+        {
+            Tags.CollectionChanged += OnTagsChanged;
+        }
+
+        private void OnTagsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            IsDirty = true;
+        }
+
         [OnDeserialized]
-        private void Do(StreamingContext streamingContext)
+        private void OnDeserialized(StreamingContext streamingContext)
         {
             SetupNote();
             IsDirty = false;
