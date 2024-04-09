@@ -94,7 +94,7 @@ namespace NotesApp.Models
             }
         }
 
-        // todo: call this when a note has been changed.
+        // todo: call this when a note has been changed. this is to implement an auto-save feature for notes.
         // todo: make sure it doesn't overwrite another note that has the same name in case of a note FileName change.
         /* todo: automating this is super dangerous! if you accidentally ctrl+a and backspace the note, you'll lose the note forever!
          * maybe backup notes or just let the user have manual saving.
@@ -104,7 +104,6 @@ namespace NotesApp.Models
         public void Save()
         {
             NoteManager.SaveNote(this);
-            IsDirty = false;
         }
 
         private void SetupNote()

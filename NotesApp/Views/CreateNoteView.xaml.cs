@@ -11,10 +11,10 @@ namespace NotesApp.Views
     {
         public Note? Note { get; private set; }
 
-        public CreateNoteView()
+        public CreateNoteView(bool renameMode = false)
         {
             InitializeComponent();
-            CreateNoteViewModel viewModel = new();
+            CreateNoteViewModel viewModel = new(renameMode);
             viewModel.NoteCreated += OnNoteCreated;
             DataContext = viewModel;
             _NoteName.Focus();

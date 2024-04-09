@@ -14,12 +14,12 @@ namespace NotesApp.Validations
                 return new ValidationResult(false, "Invalid tag");
 
             if (_tagRegex.Match(tag).Success)
-                return new ValidationResult(false, "Tag must contain only lowercase letters.");
+                return new ValidationResult(false, "Tag must contain only lowercase letters, digits and -.");
 
             return ValidationResult.ValidResult;
         }
 
-        [GeneratedRegex(@"[^a-z]")]
+        [GeneratedRegex(@"[^a-z0-9\-]")]
         private static partial Regex TagRegex();
     }
 }

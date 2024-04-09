@@ -46,6 +46,26 @@ namespace NotesApp.Managers
             return loadedNotes;
         }
 
+        public static bool ChangeNoteFileName(Note note, string newFileName)
+        {
+            string oldNotePath = PathHelper.GetNoteFilePath(note);
+            string oldNoteName = note.Name;
+            string oldNoteFileName = note.FileName;
+
+            // todo: Name must be handled properly. Currenly we rename both, but maybe we shouldn't.
+            // Aliases should be allowed to be changed independently from file name.
+            note.Name = newFileName;
+            note.FileName = newFileName;
+            if (!SaveNote(note) || !DeleteNote(oldNotePath))
+            {
+                note.Name = oldNoteName;
+                note.FileName = oldNoteFileName;
+                return false;
+            }
+
+            return true;
+        }
+
         public static Note CreateNote(string fileName)
         {
             Note note = new(fileName);
@@ -55,17 +75,42 @@ namespace NotesApp.Managers
             return note;
         }
 
-        public static void DeleteNote(Note note)
+        private static bool DeleteNote(string path)
         {
-            string path = PathHelper.GetNoteFilePath(note);
-            File.Delete(path);
+            try
+            {
+                File.Delete(path);
+            }
+            catch (Exception)
+            {
+                // todo: log?
+                return false;
+            }
+
+            return true;
         }
 
-        public static void SaveNote(Note note)
+        public static void DeleteNote(Note note)
         {
-            string path = PathHelper.GetNoteFilePath(note);
-            string noteJson = JsonConvert.SerializeObject(note, Formatting.Indented);
-            File.WriteAllText(path, noteJson);
+            DeleteNote(PathHelper.GetNoteFilePath(note));
+        }
+
+        public static bool SaveNote(Note note)
+        {
+            try
+            {
+                string path = PathHelper.GetNoteFilePath(note);
+                string noteJson = JsonConvert.SerializeObject(note, Formatting.Indented);
+                File.WriteAllText(path, noteJson);
+                note.IsDirty = false;
+            }
+            catch (Exception)
+            {
+                // todo: log?
+                return false;
+            }
+
+            return true;
         }
 
         public static bool NoteFileExists(string fileName)

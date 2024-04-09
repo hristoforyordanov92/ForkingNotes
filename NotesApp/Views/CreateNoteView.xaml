@@ -6,13 +6,23 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:validations="clr-namespace:NotesApp.Validations"
         xmlns:viewmodels="clr-namespace:NotesApp.ViewModels"
-        Title="New Note"
         Width="400"
         d:DataContext="{d:DesignInstance Type=viewmodels:CreateNoteViewModel}"
         SizeToContent="Height"
-        Style="{StaticResource MaterialDesignWindow}"
         WindowStartupLocation="CenterOwner"
         mc:Ignorable="d">
+    <Window.Style>
+        <Style TargetType="Window" BasedOn="{StaticResource MaterialDesignWindow}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RenameMode}" Value="False">
+                    <Setter Property="Title" Value="New Note" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding RenameMode}" Value="True">
+                    <Setter Property="Title" Value="Rename Note" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Style>
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
@@ -32,8 +42,19 @@
 
         <Button Grid.Row="1"
                 Command="{Binding CreateNoteCommand}"
-                Content="Create Note"
-                IsEnabled="{Binding IsViewModelValid}"
-                Style="{StaticResource MaterialDesignPaperButton}" />
+                IsEnabled="{Binding IsViewModelValid}">
+            <Button.Style>
+                <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignPaperButton}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding RenameMode}" Value="False">
+                            <Setter Property="Content" Value="Create Note" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding RenameMode}" Value="True">
+                            <Setter Property="Content" Value="Rename Note" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+        </Button>
     </Grid>
 </Window>

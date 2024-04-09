@@ -8,22 +8,32 @@ namespace NotesApp.ViewModels
     {
         public event Action<Note?>? NoteCreated;
 
-        public CreateNoteViewModel()
+        public CreateNoteViewModel(bool renameMode)
         {
+            // todo: ideally make a generic window which can be configured
+            // so we avoid having to reuse this one while making it complex and weirdly coded
+            RenameMode = renameMode;
+
             CreateNoteCommand = new RelayCommand(CreateNote, () => IsViewModelValid);
             CloseWindowCommand = new RelayCommand(CloseWindow);
         }
+
+        public RelayCommand CreateNoteCommand { get; set; }
+        public RelayCommand CloseWindowCommand { get; set; }
+
+        public bool RenameMode { get; }
 
         private string? _fileName = string.Empty;
         [FileNameValidation]
         public string? FileName
         {
             get => _fileName;
-            set => SetAndValidateField(ref _fileName, value);
+            set
+            {
+                if (SetAndValidateField(ref _fileName, value))
+                    CreateNoteCommand.RaiseCanExecuteChanged();
+            }
         }
-
-        public RelayCommand CreateNoteCommand { get; set; }
-        public RelayCommand CloseWindowCommand { get; set; }
 
         private void CreateNote()
         {

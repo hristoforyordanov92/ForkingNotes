@@ -201,7 +201,19 @@ namespace NotesApp.ViewModels
 
         private void RenameSelectedNote()
         {
+            if (SelectedNote == null)
+                return;
 
+            var renameNoteDialog = new CreateNoteView(true)
+            {
+                Owner = _window
+            };
+            renameNoteDialog.ShowDialog();
+
+            if (renameNoteDialog.Note == null)
+                return;
+
+            NoteManager.ChangeNoteFileName(SelectedNote, renameNoteDialog.Note.FileName);
         }
 
         private bool ShouldShowNotePredicate(object obj)
