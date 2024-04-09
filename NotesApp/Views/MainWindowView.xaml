@@ -23,6 +23,9 @@
         <KeyBinding Key="N"
                     Command="{Binding CreateNoteCommand}"
                     Modifiers="Ctrl" />
+        <KeyBinding Key="S"
+                    Command="{Binding SaveNoteChangesCommand}"
+                    Modifiers="Ctrl" />
     </Window.InputBindings>
 
     <Grid Name="MainGrid">
@@ -69,12 +72,7 @@
                         DockPanel.Dock="Left"
                         IsEnabled="{Binding SelectedNote.IsDirty}"
                         Style="{StaticResource MaterialDesignPaperButton}"
-                        ToolTip="Save Note Changes">
-                    <!--todo: the key binding doesn't work when we don't have a focus on the button? not sure exactly, but it's 100% about focus-->
-                    <Button.InputBindings>
-                        <KeyBinding Key="S" Modifiers="Ctrl" />
-                    </Button.InputBindings>
-                </Button>
+                        ToolTip="Save Note Changes" />
 
                 <Button Width="32"
                         Height="32"
@@ -246,10 +244,10 @@
                                 HorizontalAlignment="Left"
                                 materialDesign:ElevationAssist.Elevation="Dp0"
                                 BorderThickness="0"
+                                Command="{Binding RenameSelectedNoteCommand}"
                                 Content="{materialDesign:PackIcon Kind=Pencil,
                                                                   Size=24}"
-                                Style="{StaticResource MaterialDesignOutlinedButton}"
-                                Command="{Binding RenameSelectedNoteCommand}"/>
+                                Style="{StaticResource MaterialDesignOutlinedButton}" />
                     </StackPanel>
 
                     <!--Note Tags-->
