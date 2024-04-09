@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Timers;
 using System.Windows;
 using System.Windows.Data;
@@ -33,11 +32,12 @@ namespace NotesApp.ViewModels
             CreateNoteCommand = new RelayCommand(CreateNote);
             DeleteNoteCommand = new RelayCommand(DeleteNote);
             SaveNoteChangesCommand = new RelayCommand(SaveNoteChanges);
+            SaveAllNotesChangesCommand = new RelayCommand(SaveAllNotesChanges);
             OpenSettingsWindowCommand = new RelayCommand(OpenSettingsWindow);
             AddSearchTagCommand = new RelayCommand(AddSearchTag);
-            RemoveSearchTagCommand = new RelayCommand<object>(RemoveSearchTag);
-            AddTagCommand = new RelayCommand(AddTag);
-            RemoveTagCommand = new RelayCommand<object>(RemoveTag);
+            RemoveSearchTagCommand = new RelayCommand<string>(RemoveSearchTag);
+            AddTagCommand = new RelayCommand(AddTagToSelectedNote);
+            RemoveTagCommand = new RelayCommand<string>(RemoveTagFromSelectedNote);
             RenameSelectedNoteCommand = new RelayCommand(RenameSelectedNote);
 
             AllNotes = new ObservableCollection<Note>(NoteManager.AllNotes);
@@ -47,21 +47,22 @@ namespace NotesApp.ViewModels
             SearchTags.CollectionChanged += (sender, e) => FilteredNotesView.Refresh();
 
             _searchQueryDelayTimer.AutoReset = false;
-            _searchQueryDelayTimer.Elapsed += OnTimerElapsed;
+            _searchQueryDelayTimer.Elapsed += OnSearchQueryTimerElapsed;
         }
 
         public RelayCommand AddSearchTagCommand { get; set; }
-        public RelayCommand<object> RemoveSearchTagCommand { get; set; }
+        public RelayCommand<string> RemoveSearchTagCommand { get; set; }
         public RelayCommand CreateNoteCommand { get; set; }
         public RelayCommand DeleteNoteCommand { get; set; }
         public RelayCommand SaveNoteChangesCommand { get; set; }
+        public RelayCommand SaveAllNotesChangesCommand { get; set; }
         public RelayCommand OpenSettingsWindowCommand { get; set; }
         public RelayCommand AddTagCommand { get; set; }
-        public RelayCommand<object> RemoveTagCommand { get; set; }
+        public RelayCommand<string> RemoveTagCommand { get; set; }
         public RelayCommand RenameSelectedNoteCommand { get; set; }
 
         /// <summary>
-        /// Indicates if the application is currently ran in debug mode.
+        /// Indicates if the application is started in debug mode.
         /// </summary>
         public bool IsDebugModeEnabled { get; set; } = SettingsManager.CurrentSettings.IsDebugModeEnabled;
 
@@ -102,8 +103,21 @@ namespace NotesApp.ViewModels
         public Note? SelectedNote
         {
             get => _selectedNote;
-            set => SetField(ref _selectedNote, value);
+            set
+            {
+                if (SetField(ref _selectedNote, value))
+                {
+                    RaisePropertyChanged(nameof(HasSelectedNote));
+                    RaisePropertyChanged(nameof(IsSelectedNoteDirty));
+                }
+            }
         }
+
+        public bool HasSelectedNote => SelectedNote != null;
+
+        public bool IsSelectedNoteDirty => SelectedNote != null && SelectedNote.IsDirty;
+
+        #region Searching
 
         private void AddSearchTag()
         {
@@ -114,106 +128,14 @@ namespace NotesApp.ViewModels
             SearchTag = string.Empty;
         }
 
-        private void RemoveSearchTag(object? parameter)
+        private void RemoveSearchTag(string tag)
         {
-            if (parameter is not string tag)
-                return;
-
             SearchTags.Remove(tag);
         }
 
-        private void OnTimerElapsed(object? sender, ElapsedEventArgs e)
+        private void OnSearchQueryTimerElapsed(object? sender, ElapsedEventArgs e)
         {
             FilteredNotesView.Refresh();
-        }
-
-        private void CreateNote()
-        {
-            var window = new CreateNoteView
-            {
-                Owner = _window
-            };
-
-            var res = window.ShowDialog();
-            if (res != true)
-                return;
-
-            var note = window.Note;
-            if (note == null)
-                return;
-
-            note.Save();
-
-            AllNotes.Add(note);
-
-            FilteredNotesView.Refresh();
-        }
-
-        private void DeleteNote()
-        {
-            if (SelectedNote == null)
-                return;
-
-            var note = SelectedNote;
-
-            // todo: ask the user if they want to delete the note before deleting it :)
-
-            AllNotes.Remove(note);
-            NoteManager.DeleteNote(note);
-
-            FilteredNotesView.Refresh();
-        }
-
-        private void SaveNoteChanges()
-        {
-            if (SelectedNote == null || !SelectedNote.IsDirty)
-                return;
-
-            SelectedNote.Save();
-        }
-
-        private void OpenSettingsWindow()
-        {
-            var window = new SettingsView
-            {
-                Owner = _window
-            };
-
-            window.ShowDialog();
-        }
-
-        private void AddTag()
-        {
-            if (SelectedNote == null)
-                return;
-
-            SelectedNote.Tags.Add(SelectedNoteNewTag);
-            SelectedNoteNewTag = string.Empty;
-        }
-
-        private void RemoveTag(object? parameter)
-        {
-            if (SelectedNote == null || parameter is not string tag)
-                return;
-
-            SelectedNote.Tags.Remove(tag);
-        }
-
-        private void RenameSelectedNote()
-        {
-            if (SelectedNote == null)
-                return;
-
-            var renameNoteDialog = new CreateNoteView(true)
-            {
-                Owner = _window
-            };
-            renameNoteDialog.ShowDialog();
-
-            if (renameNoteDialog.Note == null)
-                return;
-
-            NoteManager.ChangeNoteFileName(SelectedNote, renameNoteDialog.Note.FileName);
         }
 
         private bool ShouldShowNotePredicate(object obj)
@@ -241,6 +163,116 @@ namespace NotesApp.ViewModels
             }
 
             return false;
+        }
+
+        #endregion
+
+        #region Note Manipulation
+
+        private void CreateNote()
+        {
+            CreateNoteView window = new()
+            {
+                Owner = _window
+            };
+
+            bool? result = window.ShowDialog();
+            if (result != true)
+                return;
+
+            Note? createdNote = window.Note;
+            if (createdNote == null)
+                return;
+
+            createdNote.Save();
+
+            AllNotes.Add(createdNote);
+
+            // todo: how does this react to a note that is filtered by the FIlteredNotesView? maybe test and rework
+            SelectedNote = createdNote;
+
+            FilteredNotesView.Refresh();
+        }
+
+        private void AddTagToSelectedNote()
+        {
+            if (SelectedNote == null)
+                return;
+
+            SelectedNote.Tags.Add(SelectedNoteNewTag);
+            SelectedNoteNewTag = string.Empty;
+        }
+
+        private void RemoveTagFromSelectedNote(string tag)
+        {
+            if (SelectedNote == null)
+                return;
+
+            SelectedNote.Tags.Remove(tag);
+        }
+
+        private void RenameSelectedNote()
+        {
+            if (SelectedNote == null)
+                return;
+
+            var renameNoteDialog = new CreateNoteView(true)
+            {
+                Owner = _window
+            };
+            renameNoteDialog.ShowDialog();
+
+            if (renameNoteDialog.Note == null)
+                return;
+
+            NoteManager.ChangeNoteFileName(SelectedNote, renameNoteDialog.Note.FileName);
+        }
+
+        private void SaveNoteChanges()
+        {
+            if (SelectedNote == null || !SelectedNote.IsDirty)
+                return;
+
+            SelectedNote.Save();
+        }
+
+        private void SaveAllNotesChanges()
+        {
+            // todo: optimize by actually tracking all edited notes and not itterate over them every single time.
+            foreach (var note in AllNotes)
+            {
+                if (!note.IsDirty)
+                    continue;
+
+                note.Save();
+            }
+        }
+
+        private void DeleteNote()
+        {
+            if (SelectedNote == null)
+                return;
+
+            //Note noteToDelete = SelectedNote;
+
+            // todo: ask the user if they want to delete the note before deleting it :)
+
+            NoteManager.DeleteNote(SelectedNote);
+            AllNotes.Remove(SelectedNote);
+
+            FilteredNotesView.Refresh();
+        }
+
+        #endregion
+
+        private void OpenSettingsWindow()
+        {
+            SettingsView window = new()
+            {
+                Owner = _window
+            };
+
+            window.ShowDialog();
         }
     }
 }

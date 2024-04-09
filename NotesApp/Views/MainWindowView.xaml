@@ -26,6 +26,12 @@
         <KeyBinding Key="S"
                     Command="{Binding SaveNoteChangesCommand}"
                     Modifiers="Ctrl" />
+        <KeyBinding Key="S"
+                    Command="{Binding SaveAllNotesChangesCommand}"
+                    Modifiers="Ctrl+Shift" />
+        <KeyBinding Key="Delete"
+                    Command="{Binding DeleteNoteCommand}"
+                    Modifiers="Ctrl" />
     </Window.InputBindings>
 
     <Grid Name="MainGrid">
@@ -70,9 +76,39 @@
                         Content="{materialDesign:PackIcon Kind=ContentSave,
                                                           Size=24}"
                         DockPanel.Dock="Left"
-                        IsEnabled="{Binding SelectedNote.IsDirty}"
                         Style="{StaticResource MaterialDesignPaperButton}"
                         ToolTip="Save Note Changes" />
+                <!--todo: we need a good way to bind this so its enabled only when the selected note is not null and dirty-->
+                <!--IsEnabled="{Binding IsSelectedNoteDirty}"-->
+
+                <Button Width="32"
+                        Height="32"
+                        Padding="0"
+                        HorizontalAlignment="Left"
+                        materialDesign:ElevationAssist.Elevation="Dp0"
+                        BorderThickness="0"
+                        Command="{Binding SaveAllNotesChangesCommand}"
+                        Content="{materialDesign:PackIcon Kind=ContentSaveAll,
+                                                          Size=24}"
+                        DockPanel.Dock="Left"
+                        Style="{StaticResource MaterialDesignPaperButton}"
+                        ToolTip="Save All Notes Changes" />
+                <!--todo: we need a good way to bind this so it is only enabled when there are any notes for saving.-->
+                <!--IsEnabled="{Binding IsAnyNoteDirty}"-->
+
+                <Button Width="32"
+                        Height="32"
+                        Padding="0"
+                        HorizontalAlignment="Left"
+                        materialDesign:ElevationAssist.Elevation="Dp0"
+                        BorderThickness="0"
+                        Command="{Binding DeleteNoteCommand}"
+                        Content="{materialDesign:PackIcon Kind=Trash,
+                                                          Size=24}"
+                        DockPanel.Dock="Left"
+                        IsEnabled="{Binding HasSelectedNote}"
+                        Style="{StaticResource MaterialDesignPaperButton}"
+                        ToolTip="Delete Selected Note" />
 
                 <Button Width="32"
                         Height="32"
