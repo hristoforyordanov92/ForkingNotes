@@ -13,6 +13,19 @@ namespace NotesApp.Models
     [JsonObject(memberSerialization: MemberSerialization.OptIn)]
     public class Note : ViewModelBase
     {
+        private bool _isDirty = false;
+        private string _fileName = string.Empty;
+
+        [JsonProperty(nameof(Name))]
+        private string _name = string.Empty;
+
+        [JsonProperty(nameof(Tags))]
+        // todo: we might need to make tags a class. then maybe have a graph of tags.
+        private ObservableCollection<string> _tags = [];
+
+        [JsonProperty(nameof(Content))]
+        private string _content = string.Empty;
+
         /// <summary>
         /// The constructor used by the Json serializer.
         /// </summary>
@@ -32,17 +45,21 @@ namespace NotesApp.Models
             SetupNote();
         }
 
-        private bool _isDirty = false;
+        public event Action DirtyChanged;
+
         /// <summary>
         /// Indicator if the note has undergone changes without being saved.
         /// </summary>
         public bool IsDirty
         {
             get => _isDirty;
-            set => SetField(ref _isDirty, value);
+            set
+            {
+                if (SetField(ref _isDirty, value))
+                    DirtyChanged?.Invoke();
+            }
         }
 
-        private string _fileName = string.Empty;
         /// <summary>
         /// The name of the note's file. This must not contain any of the file system's invalid characters.
         /// </summary>
@@ -52,8 +69,6 @@ namespace NotesApp.Models
             set => SetField(ref _fileName, value);
         }
 
-        [JsonProperty(nameof(Name))]
-        private string _name = string.Empty;
         /// <summary>
         /// The name of the note. Can be set to whatever the user wants.
         /// </summary>
@@ -67,9 +82,6 @@ namespace NotesApp.Models
             }
         }
 
-        [JsonProperty(nameof(Tags))]
-        // todo: we might need to make tags a class. then maybe have a graph of tags.
-        private ObservableCollection<string> _tags = [];
         /// <summary>
         /// Collection of tags which are used to mark the note with.
         /// </summary>
@@ -79,8 +91,6 @@ namespace NotesApp.Models
             private set => SetField(ref _tags, value);
         }
 
-        private string _content = string.Empty;
-        [JsonProperty(nameof(Content))]
         /// <summary>
         /// The contents of the note.
         /// </summary>

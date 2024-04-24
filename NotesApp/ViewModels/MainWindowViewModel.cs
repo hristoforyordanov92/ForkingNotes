@@ -25,6 +25,8 @@ namespace NotesApp.ViewModels
         /// </summary>
         private readonly Window _window;
 
+        private HashSet<Note> _dirtyNotes = [];
+
         public MainWindowViewModel(Window window)
         {
             _window = window;
@@ -43,6 +45,10 @@ namespace NotesApp.ViewModels
             AllNotes = new ObservableCollection<Note>(NoteManager.AllNotes);
             FilteredNotesView = CollectionViewSource.GetDefaultView(AllNotes);
             FilteredNotesView.Filter = ShouldShowNotePredicate;
+
+            AvailableTags = new ObservableCollection<string>(NoteManager.AvailableTags);
+            FilteredAvailableTagsView = CollectionViewSource.GetDefaultView(AvailableTags);
+            FilteredAvailableTagsView.Filter = ShouldShowTagPredicate;
 
             SearchTags.CollectionChanged += (sender, e) => FilteredNotesView.Refresh();
 
@@ -71,7 +77,10 @@ namespace NotesApp.ViewModels
 
         private ObservableCollection<Note> AllNotes { get; set; }
 
+        private ObservableCollection<string> AvailableTags { get; set; }
+
         public ICollectionView FilteredNotesView { get; set; }
+        public ICollectionView FilteredAvailableTagsView { get; set; }
 
         private string _selectedNoteNewTag = string.Empty;
         public string SelectedNoteNewTag
@@ -85,7 +94,11 @@ namespace NotesApp.ViewModels
         public string SearchTag
         {
             get => _searchTag;
-            set => SetField(ref _searchTag, value);
+            set
+            {
+                if (SetField(ref _searchTag, value))
+                    FilteredAvailableTagsView.Refresh();
+            }
         }
 
         private string _searchQuery = string.Empty;
@@ -105,8 +118,16 @@ namespace NotesApp.ViewModels
             get => _selectedNote;
             set
             {
+                Note? previousNote = _selectedNote;
+
                 if (SetField(ref _selectedNote, value))
                 {
+                    if (previousNote != null)
+                        previousNote.DirtyChanged -= OnSelectedNoteDirtyChanged;
+
+                    if (_selectedNote != null)
+                        _selectedNote.DirtyChanged += OnSelectedNoteDirtyChanged;
+
                     RaisePropertyChanged(nameof(HasSelectedNote));
                     RaisePropertyChanged(nameof(IsSelectedNoteDirty));
                 }
@@ -117,11 +138,31 @@ namespace NotesApp.ViewModels
 
         public bool IsSelectedNoteDirty => SelectedNote != null && SelectedNote.IsDirty;
 
+        public bool IsAnyNoteDirty => _dirtyNotes.Count > 0;
+
+        private void OnSelectedNoteDirtyChanged()
+        {
+            if (SelectedNote == null)
+                return;
+
+            if (SelectedNote.IsDirty)
+            {
+                _dirtyNotes.Add(SelectedNote);
+            }
+            else
+            {
+                _dirtyNotes.Remove(SelectedNote);
+            }
+
+            RaisePropertyChanged(nameof(IsSelectedNoteDirty));
+            RaisePropertyChanged(nameof(IsAnyNoteDirty));
+        }
+
         #region Searching
 
         private void AddSearchTag()
         {
-            if (string.IsNullOrWhiteSpace(SearchTag))
+            if (string.IsNullOrWhiteSpace(SearchTag) || SearchTags.Contains(SearchTag))
                 return;
 
             SearchTags.Add(SearchTag);
@@ -163,6 +204,20 @@ namespace NotesApp.ViewModels
             }
 
             return false;
+        }
+
+        private bool ShouldShowTagPredicate(object obj)
+        {
+            if (string.IsNullOrWhiteSpace(SearchTag))
+                return true;
+
+            if (obj is not string tag)
+                return false;
+
+            if (string.IsNullOrWhiteSpace(tag))
+                return true;
+
+            return tag.Contains(SearchTag, StringComparison.OrdinalIgnoreCase);
         }
 
         #endregion
@@ -238,24 +293,55 @@ namespace NotesApp.ViewModels
 
         private void SaveAllNotesChanges()
         {
-            // todo: optimize by actually tracking all edited notes and not itterate over them every single time.
-            foreach (var note in AllNotes)
+            // todo: optimize by actually tracking all edited notes and stop itterating over them every single time.
+            foreach (var note in _dirtyNotes)
             {
                 if (!note.IsDirty)
                     continue;
 
                 note.Save();
             }
+
+            _dirtyNotes.Clear();
+            RaisePropertyChanged(nameof(IsAnyNoteDirty));
         }
+
+        private string _testTagBoxText = string.Empty;
+        public string TestTagBoxText
+        {
+            get => _testTagBoxText;
+            set
+            {
+                if (SetField(ref _testTagBoxText, value))
+                {
+                    IsPopupOpen = true;
+                    RaisePropertyChanged(nameof(IsPopupOpen));
+                }
+            }
+        }
+
+        public bool IsPopupOpen { get; set; } = false;
 
         private void DeleteNote()
         {
             if (SelectedNote == null)
                 return;
 
-            //Note noteToDelete = SelectedNote;
+            // todo: replace this window with a custom one that fits the theme too and is potentially more generic and reusable
+            string warningMessage =
+                $"You are about to delete the following note:{Environment.NewLine}" +
+                $"\"{SelectedNote.Name}\"{Environment.NewLine}{Environment.NewLine}" +
+                "Are you sure you want to delete it?";
 
-            // todo: ask the user if they want to delete the note before deleting it :)
+            MessageBoxResult dialogResults =
+                MessageBox.Show(
+                    warningMessage,
+                    "Delete Selected Note?",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+            if (dialogResults != MessageBoxResult.Yes)
+                return;
 
             NoteManager.DeleteNote(SelectedNote);
             AllNotes.Remove(SelectedNote);

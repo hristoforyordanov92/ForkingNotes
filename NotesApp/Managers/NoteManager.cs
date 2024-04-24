@@ -13,7 +13,9 @@ namespace NotesApp.Managers
         // if a user wants to open a note that hasn't been loaded - put it in high prio and load it first.
         // notes should be in a ConcurrentDictionary<notePath, note> or something like this.
 
-        public static List<Note> AllNotes { get; set; }
+        public static List<Note> AllNotes { get; set; } = [];
+
+        public static List<string> AvailableTags { get; set; } = [];
 
         static NoteManager()
         {
@@ -41,6 +43,7 @@ namespace NotesApp.Managers
 
                 note.FileName = Path.GetFileNameWithoutExtension(noteFile);
                 loadedNotes.Add(note);
+                AvailableTags.AddRange(note.Tags);
             }
 
             return loadedNotes;

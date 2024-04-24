@@ -1,7 +1,9 @@
 ﻿<Window x:Class="NotesApp.Views.MainWindowView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:custom="clr-namespace:NotesApp.CustomControls"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:NotesApp.Views"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:validation="clr-namespace:NotesApp.Validations"
@@ -64,7 +66,7 @@
                                                           Size=24}"
                         DockPanel.Dock="Left"
                         Style="{StaticResource MaterialDesignPaperButton}"
-                        ToolTip="Create Note" />
+                        ToolTip="Create Note (Ctrl + N)" />
 
                 <Button Width="32"
                         Height="32"
@@ -76,10 +78,9 @@
                         Content="{materialDesign:PackIcon Kind=ContentSave,
                                                           Size=24}"
                         DockPanel.Dock="Left"
+                        IsEnabled="{Binding IsSelectedNoteDirty}"
                         Style="{StaticResource MaterialDesignPaperButton}"
-                        ToolTip="Save Note Changes" />
-                <!--todo: we need a good way to bind this so its enabled only when the selected note is not null and dirty-->
-                <!--IsEnabled="{Binding IsSelectedNoteDirty}"-->
+                        ToolTip="Save Selected Note Changes (Ctrl + S)" />
 
                 <Button Width="32"
                         Height="32"
@@ -91,10 +92,9 @@
                         Content="{materialDesign:PackIcon Kind=ContentSaveAll,
                                                           Size=24}"
                         DockPanel.Dock="Left"
+                        IsEnabled="{Binding IsAnyNoteDirty}"
                         Style="{StaticResource MaterialDesignPaperButton}"
-                        ToolTip="Save All Notes Changes" />
-                <!--todo: we need a good way to bind this so it is only enabled when there are any notes for saving.-->
-                <!--IsEnabled="{Binding IsAnyNoteDirty}"-->
+                        ToolTip="Save All Notes Changes (Ctrl + Shift + S)" />
 
                 <Button Width="32"
                         Height="32"
@@ -108,7 +108,7 @@
                         DockPanel.Dock="Left"
                         IsEnabled="{Binding HasSelectedNote}"
                         Style="{StaticResource MaterialDesignPaperButton}"
-                        ToolTip="Delete Selected Note" />
+                        ToolTip="Delete Selected Note (Ctrl + Delete)" />
 
                 <Button Width="32"
                         Height="32"
@@ -142,24 +142,25 @@
                                          VerticalAlignment="Center"
                                          Kind="Magnify" />
 
-                <!--todo: We're repeating a lot of XAML code here. See how to make it into a control, that is reusable-->
-                <TextBox Grid.Column="1"
-                         Width="80"
-                         Margin="0,0,10,0"
-                         VerticalAlignment="Top"
-                         materialDesign:HintAssist.Background="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=materialDesign:Card}}"
-                         materialDesign:HintAssist.Hint="Tag">
-                    <TextBox.Text>
-                        <Binding Path="SearchTag" UpdateSourceTrigger="PropertyChanged">
-                            <Binding.ValidationRules>
-                                <validation:TagValidation />
-                            </Binding.ValidationRules>
-                        </Binding>
-                    </TextBox.Text>
-                    <TextBox.InputBindings>
-                        <KeyBinding Key="Return" Command="{Binding AddSearchTagCommand}" />
-                    </TextBox.InputBindings>
-                </TextBox>
+                <!--todo: Ideally this tag code shouldn't repeat-->
+                <custom:CustomAutoSuggestBox Grid.Column="1"
+                                             Width="140"
+                                             Margin="0,0,10,0"
+                                             Padding="9"
+                                             materialDesign:HintAssist.Background="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=materialDesign:Card}}"
+                                             materialDesign:HintAssist.Hint="Search Tag"
+                                             DropDownBackground="{DynamicResource MaterialDesign.Brush.Background}"
+                                             DropDownElevation="Dp6"
+                                             ReturnCommand="{Binding AddSearchTagCommand}"
+                                             Style="{StaticResource MaterialDesignOutlinedAutoSuggestBox}"
+                                             Suggestions="{Binding FilteredAvailableTagsView}"
+                                             Text="{Binding SearchTag, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
+                    <custom:CustomAutoSuggestBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" />
+                        </DataTemplate>
+                    </custom:CustomAutoSuggestBox.ItemTemplate>
+                </custom:CustomAutoSuggestBox>
 
                 <ItemsControl Grid.Column="2" ItemsSource="{Binding SearchTags}">
                     <ItemsControl.ItemsPanel>
@@ -214,7 +215,7 @@
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsDirty}" Value="True">
+                                            <DataTrigger Binding="{Binding IsDirty, UpdateSourceTrigger=PropertyChanged}" Value="True">
                                                 <Setter Property="FontStyle" Value="Italic" />
                                                 <Setter Property="FontWeight" Value="Bold" />
                                                 <Setter Property="Text" Value="{Binding Name, StringFormat={}{0}*}" />
@@ -293,23 +294,31 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBox Grid.Column="0"
-                                 Width="80"
-                                 Margin="0,0,10,0"
-                                 VerticalAlignment="Top"
-                                 materialDesign:HintAssist.Background="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=materialDesign:Card}}"
-                                 materialDesign:HintAssist.Hint="Tag">
-                            <TextBox.Text>
+                        <!--todo: Ideally this tag code shouldn't repeat-->
+                        <custom:CustomAutoSuggestBox Grid.Column="0"
+                                                     Width="140"
+                                                     Margin="0,0,10,0"
+                                                     Padding="9"
+                                                     materialDesign:HintAssist.Background="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=materialDesign:Card}}"
+                                                     materialDesign:HintAssist.Hint="Tag"
+                                                     DropDownBackground="{DynamicResource MaterialDesign.Brush.Background}"
+                                                     DropDownElevation="Dp6"
+                                                     ReturnCommand="{Binding AddTagCommand}"
+                                                     Style="{StaticResource MaterialDesignOutlinedAutoSuggestBox}"
+                                                     Suggestions="{Binding FilteredAvailableTagsView}">
+                            <custom:CustomAutoSuggestBox.Text>
                                 <Binding Path="SelectedNoteNewTag" UpdateSourceTrigger="PropertyChanged">
                                     <Binding.ValidationRules>
                                         <validation:TagValidation />
                                     </Binding.ValidationRules>
                                 </Binding>
-                            </TextBox.Text>
-                            <TextBox.InputBindings>
-                                <KeyBinding Key="Return" Command="{Binding AddTagCommand}" />
-                            </TextBox.InputBindings>
-                        </TextBox>
+                            </custom:CustomAutoSuggestBox.Text>
+                            <custom:CustomAutoSuggestBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" />
+                                </DataTemplate>
+                            </custom:CustomAutoSuggestBox.ItemTemplate>
+                        </custom:CustomAutoSuggestBox>
 
                         <ItemsControl Grid.Column="1" ItemsSource="{Binding SelectedNote.Tags}">
                             <ItemsControl.ItemsPanel>
