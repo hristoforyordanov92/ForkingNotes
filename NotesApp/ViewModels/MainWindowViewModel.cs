@@ -25,7 +25,15 @@ namespace NotesApp.ViewModels
         /// </summary>
         private readonly Window _window;
 
-        private HashSet<Note> _dirtyNotes = [];
+        /// <summary>
+        /// Collection of notes which have been modified and haven't been saved yet.
+        /// </summary>
+        private readonly HashSet<Note> _dirtyNotes = [];
+
+        private string _selectedNoteNewTag = string.Empty;
+        private string _searchTag = string.Empty;
+        private string _searchQuery = string.Empty;
+        private Note? _selectedNote;
 
         public MainWindowViewModel(Window window)
         {
@@ -67,6 +75,10 @@ namespace NotesApp.ViewModels
         public RelayCommand<string> RemoveTagCommand { get; set; }
         public RelayCommand RenameSelectedNoteCommand { get; set; }
 
+        private ObservableCollection<Note> AllNotes { get; set; }
+
+        private ObservableCollection<string> AvailableTags { get; set; }
+
         /// <summary>
         /// Indicates if the application is started in debug mode.
         /// </summary>
@@ -75,14 +87,9 @@ namespace NotesApp.ViewModels
         // todo: maybe save these so that search tags could persist between app restarts
         public ObservableCollection<string> SearchTags { get; set; } = [];
 
-        private ObservableCollection<Note> AllNotes { get; set; }
-
-        private ObservableCollection<string> AvailableTags { get; set; }
-
         public ICollectionView FilteredNotesView { get; set; }
         public ICollectionView FilteredAvailableTagsView { get; set; }
 
-        private string _selectedNoteNewTag = string.Empty;
         public string SelectedNoteNewTag
         {
             get => _selectedNoteNewTag;
@@ -90,7 +97,6 @@ namespace NotesApp.ViewModels
         }
 
         // todo: need to sanitize the tags
-        private string _searchTag = string.Empty;
         public string SearchTag
         {
             get => _searchTag;
@@ -101,7 +107,6 @@ namespace NotesApp.ViewModels
             }
         }
 
-        private string _searchQuery = string.Empty;
         public string SearchQuery
         {
             get => _searchQuery;
@@ -112,7 +117,6 @@ namespace NotesApp.ViewModels
             }
         }
 
-        private Note? _selectedNote;
         public Note? SelectedNote
         {
             get => _selectedNote;
