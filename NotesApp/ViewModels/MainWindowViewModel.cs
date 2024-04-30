@@ -57,6 +57,8 @@ namespace NotesApp.ViewModels
             AvailableTags = new ObservableCollection<string>(NoteManager.AvailableTags);
             FilteredAvailableTagsView = CollectionViewSource.GetDefaultView(AvailableTags);
             FilteredAvailableTagsView.Filter = ShouldShowTagPredicate;
+            FilteredAvailableTagsForSelectedNoteView = CollectionViewSource.GetDefaultView(AvailableTags);
+            FilteredAvailableTagsForSelectedNoteView.Filter = ShouldShowTagForSelectedNotePredicate;
 
             SearchTags.CollectionChanged += (sender, e) => FilteredNotesView.Refresh();
 
@@ -89,11 +91,16 @@ namespace NotesApp.ViewModels
 
         public ICollectionView FilteredNotesView { get; set; }
         public ICollectionView FilteredAvailableTagsView { get; set; }
+        public ICollectionView FilteredAvailableTagsForSelectedNoteView { get; set; }
 
         public string SelectedNoteNewTag
         {
             get => _selectedNoteNewTag;
-            set => SetField(ref _selectedNoteNewTag, value);
+            set
+            {
+                if (SetField(ref _selectedNoteNewTag, value))
+                    FilteredAvailableTagsForSelectedNoteView.Refresh();
+            }
         }
 
         // todo: need to sanitize the tags
@@ -222,6 +229,23 @@ namespace NotesApp.ViewModels
                 return true;
 
             return tag.Contains(SearchTag, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private bool ShouldShowTagForSelectedNotePredicate(object obj)
+        {
+            if (obj is not string tag || SelectedNote == null)
+                return false;
+
+            if (string.IsNullOrWhiteSpace(tag))
+                return true;
+
+            if (SelectedNote.Tags.Contains(tag))
+                return false;
+
+            if (string.IsNullOrWhiteSpace(SelectedNoteNewTag))
+                return true;
+
+            return tag.Contains(SelectedNoteNewTag, StringComparison.OrdinalIgnoreCase);
         }
 
         #endregion

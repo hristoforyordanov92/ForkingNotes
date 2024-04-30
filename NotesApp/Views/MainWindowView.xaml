@@ -305,14 +305,8 @@
                                                      DropDownElevation="Dp6"
                                                      ReturnCommand="{Binding AddTagCommand}"
                                                      Style="{StaticResource MaterialDesignOutlinedAutoSuggestBox}"
-                                                     Suggestions="{Binding FilteredAvailableTagsView}">
-                            <custom:CustomAutoSuggestBox.Text>
-                                <Binding Path="SelectedNoteNewTag" UpdateSourceTrigger="PropertyChanged">
-                                    <Binding.ValidationRules>
-                                        <validation:TagValidation />
-                                    </Binding.ValidationRules>
-                                </Binding>
-                            </custom:CustomAutoSuggestBox.Text>
+                                                     Suggestions="{Binding FilteredAvailableTagsForSelectedNoteView}"
+                                                     Text="{Binding SelectedNoteNewTag, UpdateSourceTrigger=PropertyChanged}">
                             <custom:CustomAutoSuggestBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding}" />
