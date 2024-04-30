@@ -33,7 +33,9 @@ namespace NotesApp.CustomControls
             // having a custom command which executes when we've already selected a value
 
             // todo: maybe use the event for the value selection instead of this crazy 'if' statement??
-            if (!IsSuggestionOpen && !string.IsNullOrWhiteSpace(Text) && e.Key == Key.Enter)
+            if ((!IsSuggestionOpen || _autoSuggestBoxList?.SelectedItem == null)
+                && !string.IsNullOrWhiteSpace(Text)
+                && e.Key == Key.Enter)
             {
                 ReturnCommand?.Execute(null);
                 e.Handled = true;
