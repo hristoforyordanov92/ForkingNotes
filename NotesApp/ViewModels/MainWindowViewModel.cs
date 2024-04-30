@@ -54,10 +54,9 @@ namespace NotesApp.ViewModels
             FilteredNotesView = CollectionViewSource.GetDefaultView(AllNotes);
             FilteredNotesView.Filter = ShouldShowNotePredicate;
 
-            AvailableTags = new ObservableCollection<string>(NoteManager.AvailableTags);
-            FilteredAvailableTagsView = CollectionViewSource.GetDefaultView(AvailableTags);
+            FilteredAvailableTagsView = CollectionViewSource.GetDefaultView(NoteManager.AvailableTags);
             FilteredAvailableTagsView.Filter = ShouldShowTagPredicate;
-            FilteredAvailableTagsForSelectedNoteView = CollectionViewSource.GetDefaultView(AvailableTags);
+            FilteredAvailableTagsForSelectedNoteView = CollectionViewSource.GetDefaultView(NoteManager.AvailableTags);
             FilteredAvailableTagsForSelectedNoteView.Filter = ShouldShowTagForSelectedNotePredicate;
 
             SearchTags.CollectionChanged += (sender, e) => FilteredNotesView.Refresh();
@@ -231,23 +230,6 @@ namespace NotesApp.ViewModels
             return tag.Contains(SearchTag, StringComparison.OrdinalIgnoreCase);
         }
 
-        private bool ShouldShowTagForSelectedNotePredicate(object obj)
-        {
-            if (obj is not string tag || SelectedNote == null)
-                return false;
-
-            if (string.IsNullOrWhiteSpace(tag))
-                return true;
-
-            if (SelectedNote.Tags.Contains(tag))
-                return false;
-
-            if (string.IsNullOrWhiteSpace(SelectedNoteNewTag))
-                return true;
-
-            return tag.Contains(SelectedNoteNewTag, StringComparison.OrdinalIgnoreCase);
-        }
-
         #endregion
 
         #region Note Manipulation
@@ -349,6 +331,23 @@ namespace NotesApp.ViewModels
         }
 
         public bool IsPopupOpen { get; set; } = false;
+
+        private bool ShouldShowTagForSelectedNotePredicate(object obj)
+        {
+            if (obj is not string tag || SelectedNote == null)
+                return false;
+
+            if (string.IsNullOrWhiteSpace(tag))
+                return true;
+
+            if (SelectedNote.Tags.Contains(tag))
+                return false;
+
+            if (string.IsNullOrWhiteSpace(SelectedNoteNewTag))
+                return true;
+
+            return tag.Contains(SelectedNoteNewTag, StringComparison.OrdinalIgnoreCase);
+        }
 
         private void DeleteNote()
         {

@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json;
-using NotesApp.Managers;
-using Core.MVVM;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Runtime.Serialization;
+using Core.MVVM;
+using Newtonsoft.Json;
+using NotesApp.Managers;
 
 namespace NotesApp.Models
 {
@@ -45,7 +45,7 @@ namespace NotesApp.Models
             SetupNote();
         }
 
-        public event Action DirtyChanged;
+        public event Action? DirtyChanged;
 
         /// <summary>
         /// Indicator if the note has undergone changes without being saved.
@@ -123,6 +123,12 @@ namespace NotesApp.Models
 
         private void OnTagsChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
+            if (e.NewItems != null)
+            {
+                foreach (string tag in e.NewItems)
+                    NoteManager.AddTag(tag);
+            }
+
             IsDirty = true;
         }
 

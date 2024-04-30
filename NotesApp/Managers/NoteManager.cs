@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Core.Extensions;
 using Newtonsoft.Json;
 using NotesApp.Models;
 using NotesApp.Utils;
@@ -15,7 +16,7 @@ namespace NotesApp.Managers
 
         public static List<Note> AllNotes { get; set; } = [];
 
-        public static List<string> AvailableTags { get; set; } = [];
+        public static HashSet<string> AvailableTags { get; set; } = [];
 
         static NoteManager()
         {
@@ -125,6 +126,13 @@ namespace NotesApp.Managers
         public static bool NoteFileExists(Note note)
         {
             return NoteFileExists(note.FileName);
+        }
+
+        // todo: maybe allow for AddTags and accept a IEnumerable?
+        // todo: make sure removing tags also works. probably only viable after tags have been converted to a class and form a graph with the notes
+        public static void AddTag(string tag)
+        {
+            AvailableTags.Add(tag);
         }
     }
 }
