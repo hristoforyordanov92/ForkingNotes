@@ -264,6 +264,12 @@ namespace NotesApp.ViewModels
             if (SelectedNote == null)
                 return;
 
+            if (string.IsNullOrWhiteSpace(SelectedNoteNewTag))
+                return;
+
+            if (SelectedNote.Tags.Contains(SelectedNoteNewTag))
+                return;
+
             SelectedNote.Tags.Add(SelectedNoteNewTag);
             SelectedNoteNewTag = string.Empty;
         }
