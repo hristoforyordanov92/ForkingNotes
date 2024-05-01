@@ -316,7 +316,6 @@ namespace NotesApp.ViewModels
 
         private void SaveAllNotesChanges()
         {
-            // todo: optimize by actually tracking all edited notes and stop itterating over them every single time.
             foreach (var note in _dirtyNotes)
             {
                 if (!note.IsDirty)
