@@ -54,9 +54,18 @@ namespace NotesApp.ViewModels
             FilteredNotesView = CollectionViewSource.GetDefaultView(AllNotes);
             FilteredNotesView.Filter = ShouldShowNotePredicate;
 
-            FilteredAvailableTagsView = CollectionViewSource.GetDefaultView(NoteManager.AvailableTags);
+            CollectionViewSource FilteredAvailableTagsCVS = new()
+            {
+                Source = NoteManager.AvailableTags
+            };
+            FilteredAvailableTagsView = FilteredAvailableTagsCVS.View;
             FilteredAvailableTagsView.Filter = ShouldShowTagPredicate;
-            FilteredAvailableTagsForSelectedNoteView = CollectionViewSource.GetDefaultView(NoteManager.AvailableTags);
+
+            CollectionViewSource FilteredAvailableTagsForSelectedNoteCVS = new()
+            {
+                Source = NoteManager.AvailableTags
+            };
+            FilteredAvailableTagsForSelectedNoteView = FilteredAvailableTagsForSelectedNoteCVS.View;
             FilteredAvailableTagsForSelectedNoteView.Filter = ShouldShowTagForSelectedNotePredicate;
 
             SearchTags.CollectionChanged += (sender, e) => FilteredNotesView.Refresh();
@@ -77,8 +86,6 @@ namespace NotesApp.ViewModels
         public RelayCommand RenameSelectedNoteCommand { get; set; }
 
         private ObservableCollection<Note> AllNotes { get; set; }
-
-        private ObservableCollection<string> AvailableTags { get; set; }
 
         /// <summary>
         /// Indicates if the application is started in debug mode.
